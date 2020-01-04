@@ -1,0 +1,23 @@
+apply plugin: 'kotlin'
+apply plugin: 'application'
+
+mainClassName = "io.ktor.server.netty.DevelopmentEngine"
+
+sourceSets {
+    main.resources.srcDirs = [ 'resources' ]
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "io.ktor:ktor-server-netty:$ktor_version"
+    implementation "io.ktor:ktor-locations:$ktor_version"
+    implementation "io.ktor:ktor-html-builder:$ktor_version"
+    implementation "ch.qos.logback:logback-classic:$logback_version"
+    implementation "io.ktor:ktor-gson:$ktor_version"
+
+    testImplementation "io.ktor:ktor-server-test-host:$ktor_version"
+    testImplementation "io.mockk:mockk:$mockk_version"
+}
+
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"

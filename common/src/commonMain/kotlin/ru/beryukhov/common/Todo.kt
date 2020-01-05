@@ -1,4 +1,4 @@
-package ru.beryukhov.remote_domain
+package ru.beryukhov.common
 
 /**
  * Created by Andrey Beryukhov
@@ -11,17 +11,23 @@ interface Common
 interface Client
 interface Backend
 
-interface CommonApi {
+interface UserApi{
     //crud User
     suspend fun createUser(userName: String):Result<User>
-    suspend fun getUsers():List<User>
+    suspend fun getUsers():Result<List<User>>
     suspend fun updateUser(user: User):Result<User>
-    suspend fun deleteUser(user: User):Result<Nothing>
+    suspend fun deleteUser(user: User): CompletableResult
+}
+interface PostApi{
     //crud Post
     suspend fun createPost(userId: String, message: String):Result<Post>
-    suspend fun getPosts():List<Post>
+    suspend fun getPosts():Result<List<Post>>
     suspend fun updatePost(post: Post):Result<Post>
-    suspend fun deletePost(post: Post):Result<Nothing>
+    suspend fun deletePost(post: Post): CompletableResult
+}
+
+interface CommonApi:UserApi, PostApi {
+
 }
 
 interface RepoApi : CommonApi {

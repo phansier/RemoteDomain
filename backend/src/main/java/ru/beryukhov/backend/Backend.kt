@@ -14,8 +14,16 @@ import io.ktor.routing.*
 class Index()
 
 @KtorExperimentalLocationsAPI
+@Location("/post")
+class Posts()
+
+@KtorExperimentalLocationsAPI
 @Location("/post/{id}")
 data class Post(val id: String)
+
+@KtorExperimentalLocationsAPI
+@Location("/user")
+class Users()
 
 //https://github.com/ktorio/ktor-samples/tree/master/app/youkube
 @KtorExperimentalLocationsAPI
@@ -33,12 +41,17 @@ fun Application.main() {
     // Supports for Range, Accept-Range and Content-Range headers
     install(PartialContent)
 
+    val backendRepository = BackendRepository(
+        postRepository = PostRepository(),
+        userRepository = UserRepository()
+    )
 
     // Register all the routes available to this application.
     // To allow better scaling for large applications,
     // we have moved those route registrations into several extension methods and files.
     routing {
-        videos("DI_SAMPLE")
+        posts(backendRepository)
+        users(backendRepository)
 
         styles()
         static {

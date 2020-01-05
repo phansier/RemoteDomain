@@ -1,23 +1,26 @@
 
 package ru.beryukhov.backend
 
-import io.ktor.application.*
+import io.ktor.application.Application
+import io.ktor.application.install
 import io.ktor.features.*
 import io.ktor.gson.GsonConverter
 import io.ktor.http.ContentType
 import io.ktor.http.content.defaultResource
 import io.ktor.http.content.resources
 import io.ktor.http.content.static
-import io.ktor.locations.*
-import io.ktor.routing.*
+import io.ktor.locations.KtorExperimentalLocationsAPI
+import io.ktor.locations.Location
+import io.ktor.locations.Locations
+import io.ktor.routing.routing
 
 @KtorExperimentalLocationsAPI
 @Location("/")
-class Index()
+class Index
 
 @KtorExperimentalLocationsAPI
 @Location("/post")
-class Posts()
+class Posts
 
 @KtorExperimentalLocationsAPI
 @Location("/post/{id}")
@@ -25,7 +28,11 @@ data class Post(val id: String)
 
 @KtorExperimentalLocationsAPI
 @Location("/user")
-class Users()
+class Users
+
+@KtorExperimentalLocationsAPI
+@Location("/error")
+class Error
 
 //https://github.com/ktorio/ktor-samples/tree/master/app/youkube
 @KtorExperimentalLocationsAPI
@@ -59,6 +66,8 @@ fun Application.main() {
     routing {
         posts(backendRepository)
         users(backendRepository)
+
+        error()
 
         styles()
         static {

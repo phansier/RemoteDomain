@@ -12,9 +12,7 @@ class BackendRepository(
     private val userRepository: UserRepository
 ) : RepoApi, Backend,
     PostApi by postRepository,
-    UserApi by userRepository {
-
-}
+    UserApi by userRepository
 
 class PostRepository : PostApi {
     @Volatile
@@ -58,7 +56,6 @@ class UserRepository : UserApi {
 
     override suspend fun getUsers(): Result<List<User>> {
         return Result.Success(users.toList())
-        //return Result.Failure(UnknownError())
     }
 
     override suspend fun updateUser(user: User): Result<User> {

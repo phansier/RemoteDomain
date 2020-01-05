@@ -3,6 +3,8 @@ package ru.beryukhov.backend
 
 import io.ktor.application.*
 import io.ktor.features.*
+import io.ktor.gson.GsonConverter
+import io.ktor.http.ContentType
 import io.ktor.http.content.defaultResource
 import io.ktor.http.content.resources
 import io.ktor.http.content.static
@@ -40,6 +42,11 @@ fun Application.main() {
     install(ConditionalHeaders)
     // Supports for Range, Accept-Range and Content-Range headers
     install(PartialContent)
+
+    install(ContentNegotiation) {
+        //register(ContentType.Application.Json, SerializationConverter())
+        register(ContentType.Application.Json, GsonConverter())
+    }
 
     val backendRepository = BackendRepository(
         postRepository = PostRepository(),

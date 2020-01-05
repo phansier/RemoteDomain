@@ -23,7 +23,9 @@ class PostRepository : PostApi {
     private val posts = mutableListOf<Post>(Post("-1","-1","Test Post //Todo Remove"))
 
     override suspend fun createPost(userId: String, message: String): Result<Post> {
-        return Result.Success(Post(id = "${++nextId}", userId = userId, message = message))
+        val post = Post(id = "${++nextId}", userId = userId, message = message)
+        posts.add(post)
+        return Result.Success(post)
     }
 
     override suspend fun getPosts(): Result<List<Post>> {
@@ -49,12 +51,14 @@ class UserRepository : UserApi {
     private val users = mutableListOf<User>(User("-1","Test Testov //Todo Remove"))
 
     override suspend fun createUser(userName: String): Result<User> {
-        return Result.Success(User(id = "${++nextId}", userName = userName))
+        val user = User(id = "${++nextId}", userName = userName)
+        users.add(user)
+        return Result.Success(user)
     }
 
     override suspend fun getUsers(): Result<List<User>> {
-        //return Result.Success(users.toList())
-        return Result.Failure(UnknownError())
+        return Result.Success(users.toList())
+        //return Result.Failure(UnknownError())
     }
 
     override suspend fun updateUser(user: User): Result<User> {

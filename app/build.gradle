@@ -2,6 +2,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: 'com.squareup.sqldelight'
+
 android {
     compileSdkVersion 29
 
@@ -49,12 +51,12 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
-    implementation "io.ktor:ktor-client-android:$ktor_version"
-    implementation "io.ktor:ktor-client-gson:$ktor_version"
 
-    //implementation "io.ktor:ktor-client-json-jvm:$ktor_version"
+    implementation "io.ktor:ktor-client-gson:$ktor_version"
     implementation "io.ktor:ktor-client-okhttp:$ktor_version"
-    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_logging"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_logging_version"
+
+    implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
 
 
 

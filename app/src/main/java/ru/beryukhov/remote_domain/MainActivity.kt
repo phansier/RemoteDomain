@@ -25,10 +25,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setupButton()
+        setupNetworkButton()
+        setupDatabaseButton()
     }
 
-    private fun setupButton() {
+    private fun setupNetworkButton() {
         val button: Button = findViewById(R.id.button)
         button.setOnClickListener {
             GlobalScope.launch {
@@ -48,14 +49,16 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 client.testPosts(::log)
-
                 client.testUsers(::log)
-
                 client.testError(::log)
 
                 client.close()
             }
         }
+    }
+
+    private fun setupDatabaseButton() {
+        testDb(this, ::log)
     }
 
 

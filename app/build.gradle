@@ -35,6 +35,9 @@ android {
     compileOptions {
         targetCompatibility = "8"
         sourceCompatibility = "8"
+        kotlinOptions {
+            freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
+        }
     }
 
 }
@@ -57,6 +60,7 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_logging_version"
 
     implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
+    implementation "com.squareup.sqldelight:coroutines-extensions-jvm:$sqldelight_version"
 
 
 

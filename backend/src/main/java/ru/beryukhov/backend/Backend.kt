@@ -4,7 +4,6 @@ package ru.beryukhov.backend
 import io.ktor.application.Application
 import io.ktor.application.install
 import io.ktor.features.*
-import io.ktor.gson.GsonConverter
 import io.ktor.http.ContentType
 import io.ktor.http.content.defaultResource
 import io.ktor.http.content.resources
@@ -13,6 +12,7 @@ import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Location
 import io.ktor.locations.Locations
 import io.ktor.routing.routing
+import io.ktor.serialization.SerializationConverter
 
 @KtorExperimentalLocationsAPI
 @Location("/")
@@ -51,8 +51,8 @@ fun Application.main() {
     install(PartialContent)
 
     install(ContentNegotiation) {
-        //register(ContentType.Application.Json, SerializationConverter())
-        register(ContentType.Application.Json, GsonConverter())
+        register(ContentType.Application.Json, SerializationConverter())
+        //register(ContentType.Application.Json, GsonConverter())
     }
 
     val backendRepository = BackendRepository(

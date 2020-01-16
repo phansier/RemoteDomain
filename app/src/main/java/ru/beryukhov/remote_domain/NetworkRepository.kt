@@ -36,7 +36,11 @@ object NetworkRepository {
 
         makeCompletableRequest("delete(\"$SERVER_URL/post\")", log) {
             delete("$SERVER_URL/post") {
-                body = Post("-1", "-1", "Test Post //Todo Remove")
+                body = Post(
+                    "-1",
+                    "-1",
+                    "Test Post //Todo Remove"
+                )
                 headers.append(HEADER_CONTENT_TYPE, HEADER_JSON)
             }
         }
@@ -64,7 +68,10 @@ object NetworkRepository {
 
         makeCompletableRequest("delete(\"$SERVER_URL/user\")", log) {
             delete("$SERVER_URL/user") {
-                body = User("-1", "Test Testov //Todo Remove")
+                body = User(
+                    "-1",
+                    "Test Testov //Todo Remove"
+                )
                 headers.append(HEADER_CONTENT_TYPE, HEADER_JSON)
             }
         }

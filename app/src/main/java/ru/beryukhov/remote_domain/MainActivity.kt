@@ -6,8 +6,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.features.json.GsonSerializer
+//import io.ktor.client.features.json.GsonSerializer
 import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.features.json.serializer.KotlinxSerializer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -37,10 +38,7 @@ class MainActivity : AppCompatActivity() {
                 interceptor.level = if (BuildConfig.DEBUG) BODY else NONE
                 val client = HttpClient(OkHttp) {
                     install(JsonFeature) {
-                        serializer = GsonSerializer {
-                            serializeNulls()
-                            disableHtmlEscaping()
-                        }
+                        serializer = KotlinxSerializer()
                     }
                     engine {
                         addInterceptor(interceptor)

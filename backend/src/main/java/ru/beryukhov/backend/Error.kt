@@ -2,9 +2,7 @@ package ru.beryukhov.backend
 
 import com.google.gson.GsonBuilder
 import io.ktor.application.call
-import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.TextContent
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.get
 import io.ktor.response.respond
@@ -20,18 +18,15 @@ typealias NoSuchElementError = ru.beryukhov.common.model.Error.NoSuchElementErro
 
 @KtorExperimentalLocationsAPI
 fun Route.error() {
-    val gson = GsonBuilder()
-        .setPrettyPrinting()
-        .create()
+//    `val gson = GsonBuilder()
+//        .setPrettyPrinting()
+//        .create()`
 
     get<Error> {
         val users = Result.Failure<User>(NoSuchElementError(""))
         call.respond(
             status = HttpStatusCode.InternalServerError,
-            message = TextContent(
-                gson.toJson(users),
-                ContentType.Application.Json
-            )
+            message = users
         )
     }
 }

@@ -9,12 +9,15 @@ import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.get
 import io.ktor.response.respond
 import io.ktor.routing.Route
-import ru.beryukhov.common.Result
-import ru.beryukhov.common.User
+import ru.beryukhov.common.model.Result
+import ru.beryukhov.common.model.User
 
 /**
  * Created by Andrey Beryukhov
  */
+
+typealias NoSuchElementError = ru.beryukhov.common.model.Error.NoSuchElementError
+
 @KtorExperimentalLocationsAPI
 fun Route.error() {
     val gson = GsonBuilder()
@@ -22,7 +25,7 @@ fun Route.error() {
         .create()
 
     get<Error> {
-        val users = Result.Failure<User>(UnknownError())
+        val users = Result.Failure<User>(NoSuchElementError(""))
         call.respond(
             status = HttpStatusCode.InternalServerError,
             message = TextContent(

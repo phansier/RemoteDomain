@@ -1,7 +1,14 @@
 package ru.beryukhov.backend
 
-import ru.beryukhov.common.*
-import ru.beryukhov.common.Post
+import ru.beryukhov.common.Backend
+import ru.beryukhov.common.PostApi
+import ru.beryukhov.common.RepoApi
+import ru.beryukhov.common.UserApi
+import ru.beryukhov.common.model.CompletableResult
+import ru.beryukhov.common.model.Error
+import ru.beryukhov.common.model.Post
+import ru.beryukhov.common.model.Result
+import ru.beryukhov.common.model.User
 
 /**
  * Created by Andrey Beryukhov
@@ -18,10 +25,16 @@ class PostRepository : PostApi {
     @Volatile
     private var nextId: Int = 0
 
-    private val posts = mutableListOf<Post>(Post("-1","-1","Test Post //Todo Remove"))
+    private val posts = mutableListOf<Post>(
+        Post("-1", "-1", "Test Post //Todo Remove")
+    )
 
     override suspend fun createPost(userId: String, message: String): Result<Post> {
-        val post = Post(id = "${++nextId}", userId = userId, message = message)
+        val post = Post(
+            id = "${++nextId}",
+            userId = userId,
+            message = message
+        )
         posts.add(post)
         return Result.Success(post)
     }
@@ -36,7 +49,7 @@ class PostRepository : PostApi {
 
     override suspend fun deletePost(post: Post): CompletableResult {
         return if (posts.remove(post)) CompletableResult.Success else CompletableResult.Failure(
-            NoSuchElementException()
+            Error.NoSuchElementError("todo")
         )
     }
 
@@ -46,10 +59,15 @@ class UserRepository : UserApi {
     @Volatile
     private var nextId: Int = 0
 
-    private val users = mutableListOf<User>(User("-1","Test Testov //Todo Remove"))
+    private val users = mutableListOf<User>(
+        User("-1", "Test Testov //Todo Remove")
+    )
 
     override suspend fun createUser(userName: String): Result<User> {
-        val user = User(id = "${++nextId}", userName = userName)
+        val user = User(
+            id = "${++nextId}",
+            userName = userName
+        )
         users.add(user)
         return Result.Success(user)
     }
@@ -64,7 +82,7 @@ class UserRepository : UserApi {
 
     override suspend fun deleteUser(user: User): CompletableResult {
         return if (users.remove(user)) CompletableResult.Success else CompletableResult.Failure(
-            NoSuchElementException()
+            Error.NoSuchElementError("todo")
         )
     }
 

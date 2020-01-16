@@ -5,10 +5,10 @@ import io.ktor.client.features.ResponseException
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
-import ru.beryukhov.common.CompletableResult
-import ru.beryukhov.common.Post
-import ru.beryukhov.common.Result
-import ru.beryukhov.common.User
+import ru.beryukhov.common.model.CompletableResult
+import ru.beryukhov.common.model.Post
+import ru.beryukhov.common.model.Result
+import ru.beryukhov.common.model.User
 
 /**
  * Created by Andrey Beryukhov

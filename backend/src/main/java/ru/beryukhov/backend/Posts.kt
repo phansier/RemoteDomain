@@ -1,22 +1,18 @@
 package ru.beryukhov.backend
 
 import com.google.gson.GsonBuilder
-import io.ktor.application.*
-import io.ktor.features.*
-import io.ktor.html.respondHtml
-import io.ktor.http.*
-import io.ktor.http.content.*
+import io.ktor.application.call
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.TextContent
 import io.ktor.locations.*
 import io.ktor.request.receive
-import io.ktor.response.*
-import io.ktor.routing.*
-import io.ktor.sessions.*
-import kotlinx.html.*
-import ru.beryukhov.common.CompletableResult
-import ru.beryukhov.common.Result
-import java.io.*
+import io.ktor.response.respond
+import io.ktor.routing.Route
+import ru.beryukhov.common.model.CompletableResult
+import ru.beryukhov.common.model.Post
+import ru.beryukhov.common.model.Result
 
-typealias PostModel = ru.beryukhov.common.Post
 
 /**
  * Created by Andrey Beryukhov
@@ -29,7 +25,7 @@ fun Route.posts(backendRepository: BackendRepository) {
         .create()
 
     post<Posts> {
-        val post = call.receive<PostModel>()
+        val post = call.receive<Post>()
         val result = backendRepository.createPost(userId = post.userId, message = post.message)
         call.respond(
             status = HttpStatusCode.OK,
@@ -56,7 +52,7 @@ fun Route.posts(backendRepository: BackendRepository) {
     }
 
     delete<Posts> {
-        val post = call.receive<PostModel>()
+        val post = call.receive<Post>()
         val result = backendRepository.deletePost(post)
         call.respond(
             status = if (result is CompletableResult.Success) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions

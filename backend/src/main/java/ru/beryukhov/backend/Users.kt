@@ -9,10 +9,9 @@ import io.ktor.locations.*
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
-import ru.beryukhov.common.CompletableResult
-import ru.beryukhov.common.Result
-
-typealias UserModel = ru.beryukhov.common.User
+import ru.beryukhov.common.model.CompletableResult
+import ru.beryukhov.common.model.Result
+import ru.beryukhov.common.model.User
 
 /**
  * Created by Andrey Beryukhov
@@ -24,7 +23,7 @@ fun Route.users(backendRepository: BackendRepository) {
         .create()
 
     post<Users> {
-        val user = call.receive<UserModel>()
+        val user = call.receive<User>()
         val result = backendRepository.createUser(userName = user.userName)
         call.respond(
             status = HttpStatusCode.OK,
@@ -51,7 +50,7 @@ fun Route.users(backendRepository: BackendRepository) {
     }
 
     delete<Users> {
-        val user = call.receive<UserModel>()
+        val user = call.receive<User>()
         val result = backendRepository.deleteUser(user)
         call.respond(
             status = if (result is CompletableResult.Success) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions

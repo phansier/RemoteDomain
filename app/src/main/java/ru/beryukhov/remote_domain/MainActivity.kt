@@ -6,7 +6,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
-//import io.ktor.client.features.json.GsonSerializer
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
 import kotlinx.coroutines.Dispatchers
@@ -16,9 +15,12 @@ import kotlinx.coroutines.withContext
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
 import okhttp3.logging.HttpLoggingInterceptor.Level.NONE
+import ru.beryukhov.common.model.PostList
+import ru.beryukhov.common.model.UserList
 import ru.beryukhov.remote_domain.NetworkRepository.testError
 import ru.beryukhov.remote_domain.NetworkRepository.testPosts
 import ru.beryukhov.remote_domain.NetworkRepository.testUsers
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -38,7 +40,12 @@ class MainActivity : AppCompatActivity() {
                 interceptor.level = if (BuildConfig.DEBUG) BODY else NONE
                 val client = HttpClient(OkHttp) {
                     install(JsonFeature) {
-                        serializer = KotlinxSerializer()
+                        serializer = KotlinxSerializer().apply {
+                            //setListMapper(Post::class, Post.serializer())
+                            //setListMapper(User::class, User.serializer())
+                            setMapper(UserList::class, UserList.serializer())
+                            setMapper(PostList::class, PostList.serializer())
+                        }
                     }
                     engine {
                         addInterceptor(interceptor)
@@ -56,7 +63,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupDatabaseButton() {
-        testDb(this, ::log)
+        //testDb(this, ::log)
     }
 
 

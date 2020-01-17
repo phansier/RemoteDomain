@@ -1,14 +1,11 @@
 package ru.beryukhov.backend
 
-import com.google.gson.GsonBuilder
+//import com.google.gson.GsonBuilder
 import io.ktor.application.call
-import io.ktor.http.HttpStatusCode
 import io.ktor.locations.*
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
-import ru.beryukhov.common.model.CompletableResult
-import ru.beryukhov.common.model.Result
 import ru.beryukhov.common.model.User
 
 /**
@@ -23,18 +20,14 @@ fun Route.users(backendRepository: BackendRepository) {
     post<Users> {
         val user = call.receive<User>()
         val result = backendRepository.createUser(userName = user.userName)
-        call.respond(
-            status = HttpStatusCode.OK,
-            message = result
-        )
+        val response = result.toResponse()
+        call.respond(response.status, response.message)
     }
 
     get<Users> {
         val users = backendRepository.getUsers()
-        call.respond(
-            status = if (users is Result.Success) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions
-            message = users
-        )
+        val response = users.toResponse()
+        call.respond(response.status, response.message)
     }
 
     put<Users> {
@@ -44,9 +37,7 @@ fun Route.users(backendRepository: BackendRepository) {
     delete<Users> {
         val user = call.receive<User>()
         val result = backendRepository.deleteUser(user)
-        call.respond(
-            status = if (result is CompletableResult.Success) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions
-            message = result
-        )
+        val response = result.toResponse()
+        call.respond(response.status, response.message)
     }
 }

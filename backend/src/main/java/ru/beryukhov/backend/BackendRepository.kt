@@ -49,7 +49,7 @@ class PostRepository : PostApi {
 
     override suspend fun deletePost(post: Post): CompletableResult {
         return if (posts.remove(post)) CompletableResult.Success else CompletableResult.Failure(
-            Error.NoSuchElementError("todo")
+            Error.NoSuchElementError("NoSuchElementError")
         )
     }
 
@@ -82,7 +82,7 @@ class UserRepository : UserApi {
 
     override suspend fun deleteUser(user: User): CompletableResult {
         return if (users.remove(user)) CompletableResult.Success else CompletableResult.Failure(
-            Error.NoSuchElementError("todo")
+            Error.NoSuchElementError("NoSuchElementError")
         )
     }
 

@@ -4,11 +4,9 @@ import ru.beryukhov.common.Backend
 import ru.beryukhov.common.PostApi
 import ru.beryukhov.common.RepoApi
 import ru.beryukhov.common.UserApi
-import ru.beryukhov.common.model.CompletableResult
+import ru.beryukhov.common.model.*
 import ru.beryukhov.common.model.Error
 import ru.beryukhov.common.model.Post
-import ru.beryukhov.common.model.Result
-import ru.beryukhov.common.model.User
 
 /**
  * Created by Andrey Beryukhov
@@ -49,7 +47,7 @@ class PostRepository : PostApi {
 
     override suspend fun deletePost(post: Post): CompletableResult {
         return if (posts.remove(post)) CompletableResult.Success else CompletableResult.Failure(
-            Error.NoSuchElementError("NoSuchElementError")
+            Error.NoSuchElementError("todo")
         )
     }
 
@@ -82,7 +80,7 @@ class UserRepository : UserApi {
 
     override suspend fun deleteUser(user: User): CompletableResult {
         return if (users.remove(user)) CompletableResult.Success else CompletableResult.Failure(
-            Error.NoSuchElementError("NoSuchElementError")
+            Error.NoSuchElementError("todo")
         )
     }
 

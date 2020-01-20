@@ -2,10 +2,12 @@ package ru.beryukhov.remote_domain
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.ResponseException
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import ru.beryukhov.common.model.CompletableResult
 import ru.beryukhov.common.model.Post
+import ru.beryukhov.common.model.Result
 import ru.beryukhov.common.model.User
 
 /**
@@ -18,84 +20,77 @@ object NetworkRepository {
 
     suspend fun HttpClient.testPosts(log: suspend (String) -> Unit) {
         makeRequest("get<Result.Success<List<Post>>(\"$SERVER_URL/post\")", log) {
-            get<List<Post>>("$SERVER_URL/post")
+            get<Result.Success<List<Post>>>("$SERVER_URL/post")
         }
 
         makeRequest("post<Result.Success<Post>>(\"$SERVER_URL/post\")", log) {
-            post<Post>("$SERVER_URL/post") {
+            post<Result.Success<Post>>("$SERVER_URL/post") {
                 body = Post("0", "1", "New post")
                 headers.append(HEADER_CONTENT_TYPE, HEADER_JSON)
             }
         }
 
         makeRequest("get<Result.Success<List<Post>>(\"$SERVER_URL/post\")", log) {
-            get<List<Post>>("$SERVER_URL/post")
+            get<Result.Success<List<Post>>>("$SERVER_URL/post")
         }
 
-        /*makeCompletableRequest("delete(\"$SERVER_URL/post\")", log) {
+        makeCompletableRequest("delete(\"$SERVER_URL/post\")", log) {
             delete("$SERVER_URL/post") {
-                body = Post(
-                    "-1",
-                    "-1",
-                    "Test Post //Todo Remove"
-                )
+                body = Post("-1", "-1", "Test Post //Todo Remove")
                 headers.append(HEADER_CONTENT_TYPE, HEADER_JSON)
             }
-        }*/
+        }
 
         makeRequest("get<Result.Success<List<Post>>(\"$SERVER_URL/post\")", log) {
-            get<List<Post>>("$SERVER_URL/post")
+            get<Result.Success<List<Post>>>("$SERVER_URL/post")
         }
     }
 
     suspend fun HttpClient.testUsers(log: suspend (String) -> Unit) {
         makeRequest("get<Result.Success<List<User>>(\"$SERVER_URL/user\")", log) {
-            get<List<User>>("$SERVER_URL/user")
+            get<Result.Success<List<User>>>("$SERVER_URL/user")
         }
 
         makeRequest("post<Result.Success<User>>(\"$SERVER_URL/user\")", log) {
-            post<User>("$SERVER_URL/user") {
+            post<Result.Success<User>>("$SERVER_URL/user") {
                 body = User("0", "New user")
                 headers.append(HEADER_CONTENT_TYPE, HEADER_JSON)
             }
         }
 
         makeRequest("get<Result.Success<List<User>>(\"$SERVER_URL/user\")", log) {
-            get<List<User>>("$SERVER_URL/user")
+            get<Result.Success<List<User>>>("$SERVER_URL/user")
         }
 
-        /*makeCompletableRequest("delete(\"$SERVER_URL/user\")", log) {
+        makeCompletableRequest("delete(\"$SERVER_URL/user\")", log) {
             delete("$SERVER_URL/user") {
-                body = User(
-                    "-1",
-                    "Test Testov //Todo Remove"
-                )
+                body = User("-1", "Test Testov //Todo Remove")
                 headers.append(HEADER_CONTENT_TYPE, HEADER_JSON)
             }
-        }*/
+        }
 
         makeRequest("get<Result.Success<List<User>>(\"$SERVER_URL/user\")", log) {
-            get<List<User>>("$SERVER_URL/user")
+            get<Result.Success<List<User>>>("$SERVER_URL/user")
         }
     }
 
     suspend fun HttpClient.testError(log: suspend (String) -> Unit) {
         makeRequest("get<Result.Success<List<User>>>(\"$SERVER_URL/error\")", log) {
-            get<List<User>>("$SERVER_URL/error")
+            get<Result.Success<List<User>>>("$SERVER_URL/error")
         }
     }
 
-    private suspend inline fun <reified T> HttpClient.makeRequest(
+    suspend inline fun <reified T> HttpClient.makeRequest(
         logMessage: String,
         log: suspend (String) -> Unit,
-        block: HttpClient.() -> T
+        block: HttpClient.() -> Result.Success<T>
     ) {
         log("\nSending request: $logMessage")
         try {
 
             val result = block.invoke(this)
             log(
-                "Received result: ${result}"
+                "Received result: ${result.value}"
             )
         } catch (e: ResponseException) {
             log(
@@ -104,7 +99,7 @@ object NetworkRepository {
         }
     }
 
-    private suspend inline fun HttpClient.makeCompletableRequest(
+    suspend inline fun HttpClient.makeCompletableRequest(
         logMessage: String,
         log: suspend (String) -> Unit,
         block: HttpClient.() -> CompletableResult.Success

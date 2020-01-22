@@ -24,6 +24,8 @@ interface PostApi {
     suspend fun getPosts(): Result<List<Post>>
     suspend fun updatePost(post: Post): Result<Post>
     suspend fun deletePost(post: Post): CompletableResult
+
+    suspend fun getPostsDiff(from: Long, to: Long): Result<List<Post>>
 }
 
 interface CommonApi : UserApi, PostApi

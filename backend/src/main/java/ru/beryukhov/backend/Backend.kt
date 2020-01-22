@@ -23,6 +23,10 @@ class Index
 class Posts
 
 @KtorExperimentalLocationsAPI
+@Location("/diff/post")
+class PostsDiff
+
+@KtorExperimentalLocationsAPI
 @Location("/post/{id}")
 data class Post(val id: String)
 
@@ -65,6 +69,7 @@ fun Application.main() {
     // we have moved those route registrations into several extension methods and files.
     routing {
         posts(backendRepository)
+        postsDiff(backendRepository)
         users(backendRepository)
 
         error()

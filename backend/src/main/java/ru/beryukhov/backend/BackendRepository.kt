@@ -41,6 +41,10 @@ class PostRepository : PostApi {
         return Result.Success(posts.toList())
     }
 
+    override suspend fun getPostsDiff(from: Long, to: Long): Result<List<Post>> {
+
+    }
+
     override suspend fun updatePost(post: Post): Result<Post> {
         TODO("not implemented")
     }

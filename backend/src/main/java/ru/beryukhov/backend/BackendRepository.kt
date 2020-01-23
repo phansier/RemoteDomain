@@ -4,6 +4,7 @@ import ru.beryukhov.common.Backend
 import ru.beryukhov.common.PostApi
 import ru.beryukhov.common.RepoApi
 import ru.beryukhov.common.UserApi
+import ru.beryukhov.common.diff.Diff
 import ru.beryukhov.common.model.*
 import ru.beryukhov.common.model.Error
 import ru.beryukhov.common.model.Post
@@ -41,7 +42,7 @@ class PostRepository : PostApi {
         return Result.Success(posts.toList())
     }
 
-    override suspend fun getPostsDiff(from: Long, to: Long): Result<List<Post>> {
+    override suspend fun getPostsDiff(from: Long, to: Long): Result<Diff<List<Post>>> {
 
     }
 

@@ -15,15 +15,17 @@ interface Diff<T : Diffable> {
     operator fun plus(v: T): T = v + this
 }
 
-class DiffableBoolen(value: Boolean) : Comparable<Boolean> by value, Diffable {
+/*
+class DiffableBoolean(value: Boolean) : Comparable<Boolean> by value, Diffable {
     override fun <T : Diffable> plus(d: Diff<T>): T {
-
+        TODO()
     }
 
     override fun <T : Diffable> minus(v: T): Diff<T> {
-
+        TODO()
     }
 
 }
 
-class BooleanDiff : Diff<DiffableBoolen>
+class BooleanDiff : Diff<DiffableBoolean>
+*/

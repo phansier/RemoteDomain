@@ -15,6 +15,7 @@ kotlin {
         commonTest.dependencies {
             implementation "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
             implementation "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlin_version"
+            implementation "com.benasher44:uuid:0.0.7"
         }
 
         jvmMain.dependencies {

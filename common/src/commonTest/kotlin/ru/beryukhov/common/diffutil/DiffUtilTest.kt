@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.beryukhov.common.diff
+package ru.beryukhov.common.diffutil
 
 
 import com.benasher44.uuid.uuid4
 import kotlin.test.Test
-import ru.beryukhov.common.diff.DiffUtil.calculateDiff
+import ru.beryukhov.common.diffutil.DiffUtil.calculateDiff
 import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -29,8 +29,8 @@ class DiffUtilTest {
     private val mAfter: MutableList<Item> =
         ArrayList()
     private val mLog: StringBuilder = StringBuilder()
-    private val mCallback: DiffUtil.Callback =
-        object : DiffUtil.Callback() {
+    private val mCallback: Callback =
+        object : Callback() {
             override val oldListSize: Int
                 get() = mBefore.size
 
@@ -352,7 +352,9 @@ class DiffUtilTest {
     }*/
 
     private fun add(index: Int) {
-        mAfter.add(index, Item(newItem = true))
+        mAfter.add(index,
+            Item(newItem = true)
+        )
         mLog.append("add(").append(index).append(");\n")
     }
 

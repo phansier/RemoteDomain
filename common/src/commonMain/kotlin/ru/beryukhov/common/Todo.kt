@@ -1,6 +1,5 @@
 package ru.beryukhov.common
 
-import ru.beryukhov.common.diff.Diff
 import ru.beryukhov.common.model.CompletableResult
 import ru.beryukhov.common.model.Post
 import ru.beryukhov.common.model.Result

@@ -26,16 +26,12 @@ import kotlin.math.abs
  * list of update operations that converts the first list into the second one.
  *
  *
- * It can be used to calculate updates for a RecyclerView Adapter. See [ListAdapter] and
- * [AsyncListDiffer] which can simplify the use of DiffUtil on a background thread.
- *
- *
  * DiffUtil uses Eugene W. Myers's difference algorithm to calculate the minimal number of updates
  * to convert one list into another. Myers's algorithm does not handle items that are moved so
  * DiffUtil runs a second pass on the result to detect items that were moved.
  *
  *
- * Note that DiffUtil, ListAdapter, and AsyncListDiffer require the list to not mutate while in use.
+ * Note that DiffUtil require the list to not mutate while in use.
  * This generally means that both the lists themselves and their elements (or at least, the
  * properties of elements used in diffing) should not be modified directly. Instead, new lists
  * should be provided any time content changes. It's common for lists passed to DiffUtil to share
@@ -44,8 +40,7 @@ import kotlin.math.abs
  *
  *
  * If the lists are large, this operation may take significant time so you are advised to run this
- * on a background thread, get the [DiffResult] then apply it on the RecyclerView on the main
- * thread.
+ * on a background thread.
  *
  *
  * This algorithm is optimized for space and uses O(N) space to find the minimal
@@ -74,9 +69,6 @@ import kotlin.math.abs
  *
  * Due to implementation constraints, the max size of the list can be 2^26.
  *
- * @see ListAdapter
- *
- * @see AsyncListDiffer
  */
 object DiffUtil {
     private val SNAKE_COMPARATOR: Comparator<Snake> =
@@ -86,6 +78,7 @@ object DiffUtil {
                 return if (cmpX == 0) a.y - b.y else cmpX
             }
         }
+
     /**
      * Calculates the list of update operations that can covert one list into the other one.
      *
@@ -99,10 +92,10 @@ object DiffUtil {
      *
      * @return A DiffResult that contains the information about the edit sequence to convert the
      * old list into the new list.
-     */
-// Myers' algorithm uses two lists as axis labels. In DiffUtil's implementation, `x` axis is
-// used for old list and `y` axis is used for new list.
-    /**
+     *
+     * Myers' algorithm uses two lists as axis labels. In DiffUtil's implementation, `x` axis is
+     * used for old list and `y` axis is used for new list.
+     *
      * Calculates the list of update operations that can covert one list into the other one.
      *
      * @param cb The callback that acts as a gateway to the backing list data
@@ -116,7 +109,7 @@ object DiffUtil {
         val newSize = cb.newListSize
         val snakes: MutableList<Snake> = ArrayList()
         // instead of a recursive implementation, we keep our own stack to avoid potential stack
-// overflow exceptions
+        // overflow exceptions
         val stack: MutableList<Range> =
             ArrayList()
         stack.add(
@@ -129,14 +122,14 @@ object DiffUtil {
         )
         val max: Int = oldSize + newSize + abs(oldSize - newSize)
         // allocate forward and backward k-lines. K lines are diagonal lines in the matrix. (see the
-// paper for details)
-// These arrays lines keep the max reachable position for each k-line.
+        // paper for details)
+        // These arrays lines keep the max reachable position for each k-line.
         val forward = IntArray(max * 2)
         val backward = IntArray(max * 2)
         // We pool the ranges to avoid allocations for each recursive call.
         val rangePool: MutableList<Range> =
             ArrayList()
-        while (!stack.isEmpty()) {
+        while (stack.isNotEmpty()) {
             val range = stack.removeAt(stack.size - 1)
             val snake = diffPartial(
                 cb, range.oldListStart, range.oldListEnd,
@@ -241,13 +234,13 @@ object DiffUtil {
                     forward[kOffset + k] = x
                     if (checkInFwd && k >= delta - d + 1 && k <= delta + d - 1) {
                         if (forward[kOffset + k] >= backward[kOffset + k]) {
-                            val outSnake = Snake()
-                            outSnake.x = backward[kOffset + k]
-                            outSnake.y = outSnake.x - k
-                            outSnake.size = forward[kOffset + k] - backward[kOffset + k]
-                            outSnake.removal = removal
-                            outSnake.reverse = false
-                            return outSnake
+                            return Snake(
+                                x = backward[kOffset + k],
+                                y = backward[kOffset + k] - k,
+                                size = forward[kOffset + k] - backward[kOffset + k],
+                                removal = removal,
+                                reverse = false
+                            )
                         }
                     }
                     k += 2
@@ -279,14 +272,13 @@ object DiffUtil {
                 backward[kOffset + backwardK] = x
                 if (!checkInFwd && k + delta >= -d && k + delta <= d) {
                     if (forward[kOffset + backwardK] >= backward[kOffset + backwardK]) {
-                        val outSnake = Snake()
-                        outSnake.x = backward[kOffset + backwardK]
-                        outSnake.y = outSnake.x - backwardK
-                        outSnake.size =
-                            forward[kOffset + backwardK] - backward[kOffset + backwardK]
-                        outSnake.removal = removal
-                        outSnake.reverse = true
-                        return outSnake
+                        return Snake(
+                            x = backward[kOffset + backwardK],
+                            y = backward[kOffset + backwardK] - backwardK,
+                            size = forward[kOffset + backwardK] - backward[kOffset + backwardK],
+                            removal = removal,
+                            reverse = true
+                        )
                     }
                 }
                 k += 2
@@ -305,20 +297,11 @@ object DiffUtil {
      *
      * This internal class is used when running Myers' algorithm without recursion.
      */
-    internal class Range {
-        var oldListStart = 0
-        var oldListEnd = 0
-        var newListStart = 0
-        var newListEnd = 0
-
-        constructor() {}
-        constructor(oldListStart: Int, oldListEnd: Int, newListStart: Int, newListEnd: Int) {
-            this.oldListStart = oldListStart
-            this.oldListEnd = oldListEnd
-            this.newListStart = newListStart
-            this.newListEnd = newListEnd
-        }
-    }
-
+    internal class Range(
+        var oldListStart: Int = 0,
+        var oldListEnd: Int = 0,
+        var newListStart: Int = 0,
+        var newListEnd: Int = 0
+    )
 
 }

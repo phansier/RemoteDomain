@@ -17,11 +17,9 @@ package ru.beryukhov.common.diffutil
 
 
 import com.benasher44.uuid.uuid4
-import kotlin.test.Test
 import ru.beryukhov.common.diffutil.DiffUtil.calculateDiff
 import kotlin.random.Random
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
+import kotlin.test.*
 
 class DiffUtilTest {
     private val mBefore: MutableList<Item> =
@@ -76,6 +74,7 @@ class DiffUtilTest {
     }
 
     @Test
+    @Ignore
     fun testRandom() {
         for (i in 0..99) {
             for (j in 2..39) {
@@ -239,11 +238,11 @@ class DiffUtilTest {
     fun testDisableMoveDetection() {
         initWithSize(5)
         move(0, 4)
-        /*val applied: List<Item> =
+        val applied: List<Item> =
             applyUpdates(mBefore, calculateDiff(mCallback, false))
-        assertEquals(applied.size,5)
+        assertEquals(applied.size, 5)
         assertEquals(applied[4].newItem, true)
-        assertEquals(applied.contains(mBefore[0]), false)*/
+        assertEquals(applied.contains(mBefore[0]), false)
     }
 
     private fun testRandom(initialSize: Int, operationCount: Int) {
@@ -284,9 +283,9 @@ class DiffUtilTest {
         log("before", mBefore)
         log("after", mAfter)
         log("snakes", result.snakes)
-        /*val applied: List<Item> =
-            applyUpdates(mBefore, result)
-        assertEquals(applied, mAfter)*/
+        val applied: List<Item> = applyUpdates(mBefore, result)
+        log("applied", applied)
+        assertEquals(applied, mAfter)
     }
 
     private fun initWithSize(size: Int) {
@@ -306,32 +305,32 @@ class DiffUtilTest {
         }
     }
 
-    /*private fun applyUpdates(
+    private fun applyUpdates(
         before: List<Item>,
         result: DiffResult
     ): List<Item> {
         val target: MutableList<Item> =
             ArrayList()
         target.addAll(before)
-        result.dispatchUpdatesTo(object : ListUpdateCallback() {
-            fun onInserted(position: Int, count: Int) {
+        result.dispatchUpdatesTo(object : ListUpdateCallback {
+            override fun onInserted(position: Int, count: Int) {
                 for (i in 0 until count) {
                     target.add(i + position, Item(newItem = true))
                 }
             }
 
-            fun onRemoved(position: Int, count: Int) {
+            override fun onRemoved(position: Int, count: Int) {
                 for (i in 0 until count) {
                     target.removeAt(position)
                 }
             }
 
-            fun onMoved(fromPosition: Int, toPosition: Int) {
+            override fun onMoved(fromPosition: Int, toPosition: Int) {
                 val item: Item = target.removeAt(fromPosition)
                 target.add(toPosition, item)
             }
 
-            fun onChanged(position: Int, count: Int, payload: Any?) {
+            override fun onChanged(position: Int, count: Int, payload: Any?) {
                 for (i in 0 until count) {
                     val positionInList = position + i
                     val existing: Item =
@@ -349,10 +348,11 @@ class DiffUtilTest {
             }
         })
         return target
-    }*/
+    }
 
     private fun add(index: Int) {
-        mAfter.add(index,
+        mAfter.add(
+            index,
             Item(newItem = true)
         )
         mLog.append("add(").append(index).append(");\n")
@@ -398,8 +398,33 @@ class DiffUtilTest {
         mLog.append("move(").append(from).append(",").append(to).append(");\n")
     }
 
+    private fun assertEquals(applied: List<Item>, after: List<Item>) {
+        log("applied", applied)
+        val report = mLog.toString()
+        assertEquals(applied.size, after.size, report)
+        for (i in after.indices) {
+            val item = applied.get(i)
+            when {
+                after[i].newItem -> {
+                    assertEquals(item.newItem, true, report)
+                }
+                after.get(i).changed -> {
+                    assertEquals(item.newItem, false, report)
+                    assertEquals(item.changed, true, report)
+                    assertEquals(item.id, after[i].id, report)
+                    assertEquals(item.payload, after[i].payload, report)
+                }
+                else -> {
+                    assertEquals(item, after[i], report)
+                }
+            }
+        }
+        println(mLog)
+        mLog.clear()
+    }
+
     internal data class Item(
-        val id: Long = idCounter++,
+        val id: Long,
         val newItem: Boolean,
         var changed: Boolean = false,
         var payload: String? = null,
@@ -414,9 +439,11 @@ class DiffUtilTest {
             data = other.data
         )
 
+        constructor(newItem: Boolean) : this(id = idCounter++, newItem = newItem)
+
 
         companion object {
-            var idCounter: Long = 0
+            private var idCounter: Long = 0
         }
     }
 

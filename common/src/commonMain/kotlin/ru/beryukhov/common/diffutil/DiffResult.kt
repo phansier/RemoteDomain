@@ -189,14 +189,10 @@ class DiffResult internal constructor(
             if (removal) { // check removals for a match
                 for (pos in curX - 1 downTo endX) {
                     if (callback.areItemsTheSame(pos, myItemPos)) { // found!
-                        val theSame =
-                            callback.areContentsTheSame(pos, myItemPos)
-                        val changeFlag =
-                            if (theSame) FLAG_MOVED_NOT_CHANGED else FLAG_MOVED_CHANGED
-                        mNewItemStatuses[myItemPos] =
-                            pos shl FLAG_OFFSET or FLAG_IGNORE
-                        mOldItemStatuses[pos] =
-                            myItemPos shl FLAG_OFFSET or changeFlag
+                        val theSame = callback.areContentsTheSame(pos, myItemPos)
+                        val changeFlag = if (theSame) FLAG_MOVED_NOT_CHANGED else FLAG_MOVED_CHANGED
+                        mNewItemStatuses[myItemPos] = pos shl FLAG_OFFSET or FLAG_IGNORE
+                        mOldItemStatuses[pos] = myItemPos shl FLAG_OFFSET or changeFlag
                         return true
                     }
                 }
@@ -207,10 +203,8 @@ class DiffResult internal constructor(
                             callback.areContentsTheSame(myItemPos, pos)
                         val changeFlag =
                             if (theSame) FLAG_MOVED_NOT_CHANGED else FLAG_MOVED_CHANGED
-                        mOldItemStatuses[x - 1] =
-                            pos shl FLAG_OFFSET or FLAG_IGNORE
-                        mNewItemStatuses[pos] =
-                            x - 1 shl FLAG_OFFSET or changeFlag
+                        mOldItemStatuses[x - 1] = pos shl FLAG_OFFSET or FLAG_IGNORE
+                        mNewItemStatuses[pos] = x - 1 shl FLAG_OFFSET or changeFlag
                         return true
                     }
                 }
@@ -254,17 +248,11 @@ class DiffResult internal constructor(
             }
 
             if (endY < posNew) {
-                dispatchAdditions(
-                    postponedUpdates, batchingCallback, endX, posNew - endY,
-                    endY
-                )
+                dispatchAdditions(postponedUpdates, batchingCallback, endX, posNew - endY, endY)
             }
             for (i in snakeSize - 1 downTo 0) {
                 if ((mOldItemStatuses[snake.x + i] and FLAG_MASK) == FLAG_CHANGED) {
-                    batchingCallback.onChanged(
-                        snake.x + i, 1,
-                        callback.getChangePayload(snake.x + i, snake.y + i)
-                    )
+                    batchingCallback.onChanged(snake.x + i, 1, callback.getChangePayload(snake.x + i, snake.y + i))
                 }
             }
             posOld = snake.x
@@ -291,7 +279,7 @@ class DiffResult internal constructor(
                     }
                 }
                 FLAG_MOVED_CHANGED, FLAG_MOVED_NOT_CHANGED -> {
-                    val pos = mNewItemStatuses[globalIndex + i].shr(FLAG_OFFSET)
+                    val pos = mNewItemStatuses[globalIndex + i] shr FLAG_OFFSET
                     val update = removePostponedUpdate(
                         postponedUpdates, pos,
                         true
@@ -336,7 +324,7 @@ class DiffResult internal constructor(
                 }
             }
             FLAG_MOVED_CHANGED, FLAG_MOVED_NOT_CHANGED -> {
-                val pos = mOldItemStatuses[globalIndex + i].shr(FLAG_OFFSET)
+                val pos = mOldItemStatuses[globalIndex + i] shr FLAG_OFFSET
                 val update = removePostponedUpdate(
                     postponedUpdates, pos,
                     false

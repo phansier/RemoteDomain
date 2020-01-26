@@ -191,6 +191,45 @@ object DiffUtil {
         )
     }
 
+    fun <T> applyUpdates(
+        before: List<T>,
+        result: DiffResult
+    ): List<T> {
+        val target: MutableList<T> = ArrayList()
+        target.addAll(before)
+        result.dispatchUpdatesTo(object : ListUpdateCallback {
+            override fun onInserted(position: Int, count: Int) {
+                for (i in 0 until count) {
+                    target.add(i + position, T(newItem = true))
+                }
+            }
+
+            override fun onRemoved(position: Int, count: Int) {
+                for (i in 0 until count) {
+                    target.removeAt(position)
+                }
+            }
+
+            override fun onMoved(fromPosition: Int, toPosition: Int) {
+                val item: T = target.removeAt(fromPosition)
+                target.add(toPosition, item)
+            }
+
+            override fun onChanged(position: Int, count: Int, payload: Any?) {
+                for (i in 0 until count) {
+                    val positionInList = position + i
+                    val existing: T = target[positionInList]
+                    val replica = T(existing)
+                    replica.payload = payload as String?
+                    replica.changed = true
+                    target.removeAt(positionInList)
+                    target.add(positionInList, replica)
+                }
+            }
+        })
+        return target
+    }
+
     private fun diffPartial(
         cb: Callback, startOld: Int, endOld: Int,
         startNew: Int, endNew: Int, forward: IntArray, backward: IntArray, kOffset: Int

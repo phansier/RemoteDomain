@@ -22,10 +22,8 @@ import kotlin.random.Random
 import kotlin.test.*
 
 class DiffUtilTest {
-    private val mBefore: MutableList<Item> =
-        ArrayList()
-    private val mAfter: MutableList<Item> =
-        ArrayList()
+    private val mBefore: MutableList<Item> = ArrayList()
+    private val mAfter: MutableList<Item> = ArrayList()
     private val mLog: StringBuilder = StringBuilder()
     private val mCallback: Callback =
         object : Callback() {

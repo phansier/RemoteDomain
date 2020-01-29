@@ -12,7 +12,18 @@ import io.ktor.http.content.static
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Location
 import io.ktor.locations.Locations
+import io.ktor.network.selector.ActorSelectorManager
+import io.ktor.network.sockets.aSocket
+import io.ktor.network.sockets.openWriteChannel
 import io.ktor.routing.routing
+import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.cio.write
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.onEach
+import java.net.InetSocketAddress
 
 @KtorExperimentalLocationsAPI
 @Location("/")
@@ -39,6 +50,9 @@ class Users
 class Error
 
 //https://github.com/ktorio/ktor-samples/tree/master/app/youkube
+@FlowPreview
+@ExperimentalCoroutinesApi
+@KtorExperimentalAPI
 @KtorExperimentalLocationsAPI
 fun Application.main() {
     // This adds automatically Date and Server headers to each response, and would allow you to configure
@@ -59,10 +73,15 @@ fun Application.main() {
         register(ContentType.Application.Json, GsonConverter())
     }
 
+    val channel = BroadcastChannel<Any>(1)
+
     val backendRepository = BackendRepository(
-        postRepository = PostRepository(),
-        userRepository = UserRepository()
+        postRepository = PostRepository(broadcastChannel = channel),
+        userRepository = UserRepository(broadcastChannel = channel)
+
     )
+
+    launchSocket(channel.openSubscription())
 
     // Register all the routes available to this application.
     // To allow better scaling for large applications,
@@ -80,6 +99,44 @@ fun Application.main() {
             defaultResource("index.html", "web")
             // This serves files from the 'web' folder in the application resources.
             resources("web")
+        }
+    }
+}
+
+@UseExperimental(FlowPreview::class)
+@KtorExperimentalAPI
+private fun launchSocket(openSubscription: ReceiveChannel<Any>) {
+    GlobalScope.launch {
+        //telnet 127.0.0.1 2324
+        val server = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp()
+            .bind(InetSocketAddress("127.0.0.1", 2324))
+        println("Started echo telnet server at ${server.localAddress}")
+
+        while (true) {
+            val socket = server.accept()
+
+            launch {
+                println("Socket accepted: ${socket.remoteAddress}")
+
+                /*val input = socket.openReadChannel()
+                val output = socket.openWriteChannel(autoFlush = true)
+
+                try {
+                    while (true) {
+                        val line = input.readUTF8Line()
+
+                        println("${socket.remoteAddress}: $line")
+                        output.write("$line received")
+                    }
+                } catch (e: Throwable) {
+                    e.printStackTrace()
+                    socket.close()
+                }*/
+                val output = socket.openWriteChannel(autoFlush = true)
+                openSubscription.consumeAsFlow().onEach {
+                    output.write("Data changed")
+                }
+            }
         }
     }
 }

@@ -25,7 +25,7 @@ interface PostApi {
     suspend fun updatePost(post: Post): Result<Post>
     suspend fun deletePost(post: Post): CompletableResult
 
-    suspend fun getPostsDiff(from: Long, to: Long)//: Result<Diff<List<Post>>>
+    //suspend fun getPostsDiff(from: Long, to: Long)//: Result<Diff<List<Post>>>
 }
 
 interface CommonApi : UserApi, PostApi
@@ -35,3 +35,9 @@ interface RepoApi : CommonApi
 interface DbApi : CommonApi
 
 interface NetworkApi : CommonApi
+
+interface ApiMethod
+interface Create<T> : ApiMethod
+interface Read<T> : ApiMethod
+interface Update<T> : ApiMethod
+interface Delete<T> : ApiMethod

@@ -11,7 +11,6 @@ import io.ktor.locations.get
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import ru.beryukhov.common.model.Error
-import ru.beryukhov.common.model.Result
 
 
 /**
@@ -49,14 +48,14 @@ fun Route.postsDiff(backendRepository: BackendRepository) {
             return@get
         }
 
-        val posts = backendRepository.getPostsDiff(from, to)
+        /*val posts = backendRepository.getPostsDiff(from, to)
         call.respond(
             status = if (posts is Result.Success) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions
             message = TextContent(
                 gson.toJson(posts),
                 ContentType.Application.Json
             )
-        )
+        )*/
 
     }
 }

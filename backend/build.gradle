@@ -4,7 +4,7 @@ apply plugin: 'application'
 mainClassName = "io.ktor.server.netty.DevelopmentEngine"
 
 sourceSets {
-    main.resources.srcDirs = [ 'resources' ]
+    main.resources.srcDirs = ['resources']
 }
 
 dependencies {
@@ -17,9 +17,17 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:$logback_version"
     implementation "io.ktor:ktor-gson:$ktor_version"
 
+    implementation "io.ktor:ktor-network:$ktor_version"
+
     testImplementation "io.ktor:ktor-server-test-host:$ktor_version"
     testImplementation "io.mockk:mockk:$mockk_version"
 }
 
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
+
+compileKotlin {
+    kotlinOptions {
+        freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
+    }
+}

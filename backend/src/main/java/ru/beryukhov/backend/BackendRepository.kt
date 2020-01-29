@@ -1,10 +1,8 @@
 package ru.beryukhov.backend
 
-import ru.beryukhov.common.Backend
-import ru.beryukhov.common.PostApi
-import ru.beryukhov.common.RepoApi
-import ru.beryukhov.common.UserApi
-import ru.beryukhov.common.diff.Diff
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.BroadcastChannel
+import ru.beryukhov.common.*
 import ru.beryukhov.common.model.*
 import ru.beryukhov.common.model.Error
 import ru.beryukhov.common.model.Post
@@ -13,6 +11,7 @@ import ru.beryukhov.common.model.Post
  * Created by Andrey Beryukhov
  */
 
+@ExperimentalCoroutinesApi
 class BackendRepository(
     private val postRepository: PostRepository,
     private val userRepository: UserRepository
@@ -20,7 +19,8 @@ class BackendRepository(
     PostApi by postRepository,
     UserApi by userRepository
 
-class PostRepository : PostApi {
+@ExperimentalCoroutinesApi
+class PostRepository(private val broadcastChannel: BroadcastChannel<Any>) : PostApi {
     @Volatile
     private var nextId: Int = 0
 
@@ -35,6 +35,7 @@ class PostRepository : PostApi {
             message = message
         )
         posts.add(post)
+        broadcastChannel.offer(object : Create<Post> {})
         return Result.Success(post)
     }
 
@@ -42,23 +43,28 @@ class PostRepository : PostApi {
         return Result.Success(posts.toList())
     }
 
-    override suspend fun getPostsDiff(from: Long, to: Long): Result<Diff<List<Post>>> {
+    /*override suspend fun getPostsDiff(from: Long, to: Long): Result<Diff<List<Post>>> {
 
-    }
+    }*/
 
     override suspend fun updatePost(post: Post): Result<Post> {
+        broadcastChannel.offer(object : Update<Post> {})
         TODO("not implemented")
     }
 
     override suspend fun deletePost(post: Post): CompletableResult {
-        return if (posts.remove(post)) CompletableResult.Success else CompletableResult.Failure(
+        return if (posts.remove(post)) {
+            broadcastChannel.offer(object : Delete<Post> {})
+            CompletableResult.Success
+        } else CompletableResult.Failure(
             Error.NoSuchElementError("todo")
         )
     }
 
 }
 
-class UserRepository : UserApi {
+@ExperimentalCoroutinesApi
+class UserRepository(private val broadcastChannel: BroadcastChannel<Any>) : UserApi {
     @Volatile
     private var nextId: Int = 0
 
@@ -72,6 +78,7 @@ class UserRepository : UserApi {
             userName = userName
         )
         users.add(user)
+        broadcastChannel.offer(object : Create<User> {})
         return Result.Success(user)
     }
 
@@ -80,11 +87,15 @@ class UserRepository : UserApi {
     }
 
     override suspend fun updateUser(user: User): Result<User> {
+        broadcastChannel.offer(object : Update<User> {})
         TODO("not implemented")
     }
 
     override suspend fun deleteUser(user: User): CompletableResult {
-        return if (users.remove(user)) CompletableResult.Success else CompletableResult.Failure(
+        return if (users.remove(user)) {
+            broadcastChannel.offer(object : Delete<User> {})
+            CompletableResult.Success
+        } else CompletableResult.Failure(
             Error.NoSuchElementError("todo")
         )
     }

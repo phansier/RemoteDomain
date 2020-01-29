@@ -19,7 +19,9 @@ import ru.beryukhov.common.model.Result
  */
 
 @KtorExperimentalLocationsAPI
-fun Route.posts(backendRepository: BackendRepository) {
+fun Route.posts(
+    backendRepository: BackendRepository
+) {
     val gson = GsonBuilder()
         .setPrettyPrinting()
         .create()
@@ -28,7 +30,7 @@ fun Route.posts(backendRepository: BackendRepository) {
         val post = call.receive<Post>()
         val result = backendRepository.createPost(userId = post.userId, message = post.message)
         call.respond(
-            status = HttpStatusCode.OK,
+            status = if (result is Result.Success) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions
             message = TextContent(
                 gson.toJson(result),
                 ContentType.Application.Json

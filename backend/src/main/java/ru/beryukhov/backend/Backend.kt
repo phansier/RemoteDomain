@@ -1,4 +1,3 @@
-
 package ru.beryukhov.backend
 
 import io.ktor.application.Application
@@ -6,29 +5,22 @@ import io.ktor.application.install
 import io.ktor.features.*
 import io.ktor.gson.GsonConverter
 import io.ktor.http.ContentType
-import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.http.cio.websocket.Frame
-import io.ktor.http.cio.websocket.close
-import io.ktor.http.cio.websocket.readText
+import io.ktor.http.content.defaultResource
+import io.ktor.http.content.resources
+import io.ktor.http.content.static
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Location
 import io.ktor.locations.Locations
-import io.ktor.network.selector.ActorSelectorManager
-import io.ktor.network.sockets.aSocket
-import io.ktor.network.sockets.openReadChannel
-import io.ktor.network.sockets.openWriteChannel
+import io.ktor.routing.Routing
 import io.ktor.routing.routing
 import io.ktor.util.KtorExperimentalAPI
-import io.ktor.util.cio.write
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.onEach
-import java.net.InetSocketAddress
-import java.time.Duration
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.consumeEach
 
 /*@KtorExperimentalLocationsAPI
 @Location("/")
@@ -55,6 +47,8 @@ class Users
 class Error
 
 //https://github.com/ktorio/ktor-samples/tree/master/app/youkube
+@ObsoleteCoroutinesApi
+@InternalCoroutinesApi
 @FlowPreview
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
@@ -78,7 +72,7 @@ fun Application.main() {
         register(ContentType.Application.Json, GsonConverter())
     }
 
-    val channel = BroadcastChannel<Any>(1)
+    val channel = BroadcastChannel<Any>(Channel.CONFLATED)
 
     val backendRepository = BackendRepository(
         postRepository = PostRepository(broadcastChannel = channel),
@@ -86,56 +80,15 @@ fun Application.main() {
 
     )
 
-    install(WebSockets) {
-        pingPeriod = Duration.ofSeconds(60) // Disabled (null) by default
-        timeout = Duration.ofSeconds(15)
-        maxFrameSize =
-            Long.MAX_VALUE // Disabled (max value). The connection will be closed if surpassed this length.
-        masking = false
+    install(WebSockets)
+    install(Routing) {
+        launchWebSocket(channel)
     }
-
-    /*install(Routing) {
-        webSocket {
-            // websocketSession
-            for (frame in incoming) {
-                println("frame incoming")
-                when (frame) {
-                    is Frame.Text -> {
-                        val text = frame.readText()
-                        outgoing.send(Frame.Text("YOU SAID: $text"))
-                        if (text.equals("bye", ignoreCase = true)) {
-                            close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
-                        }
-                    }
-                }
-            }
-        }
-    }*/
-
-    routing {
-        //websocket
-        webSocket("/") {
-            while (true) {
-                val frame = incoming.receive()
-                when (frame) {
-                    is Frame.Text -> {
-                        val text = frame.readText()
-                        outgoing.send(Frame.Text("Welcome $text"))
-                        if (text.equals("bye", ignoreCase = true)) {
-                            close(CloseReason(CloseReason.Codes.NORMAL, "Client said Bye"))
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    //launchSocket(channel.openSubscription())
 
     // Register all the routes available to this application.
     // To allow better scaling for large applications,
     // we have moved those route registrations into several extension methods and files.
-    /*routing {
+    routing {
         posts(backendRepository)
         postsDiff(backendRepository)
         users(backendRepository)
@@ -151,44 +104,29 @@ fun Application.main() {
         }
 
 
-    }*/
-}
-
-@UseExperimental(FlowPreview::class)
-@KtorExperimentalAPI
-private fun launchSocket(openSubscription: ReceiveChannel<Any>) {
-    GlobalScope.launch {
-        //telnet 127.0.0.1 2324
-        val server = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp()
-            .bind(InetSocketAddress("127.0.0.1", 2324))
-        println("Started echo telnet server at ${server.localAddress}")
-
-        while (true) {
-            val socket = server.accept()
-
-            //launch {
-            println("Socket accepted: ${socket.remoteAddress}")
-
-            val input = socket.openReadChannel()
-            /*val output = socket.openWriteChannel(autoFlush = true)
-
-            try {
-                while (true) {
-                    val line = input.readUTF8Line()
-
-                    println("${socket.remoteAddress}: $line")
-                    output.write("$line received")
-                }
-            } catch (e: Throwable) {
-                e.printStackTrace()
-                socket.close()
-            }*/
-                val output = socket.openWriteChannel(autoFlush = true)
-                openSubscription.consumeAsFlow().onEach {
-                    println("Data changed: $it")
-                    output.write("Data changed")
-                }
-            //}
-        }
     }
 }
+
+@InternalCoroutinesApi
+@ObsoleteCoroutinesApi
+@ExperimentalCoroutinesApi
+private fun Routing.launchWebSocket(channel: BroadcastChannel<Any>) {
+    webSocket("/ws") {
+        GlobalScope.launch {
+            channel.consumeEach {
+                println("event got $it")
+                outgoing.send(Frame.Text(it.toString()))
+            }
+        }
+
+        while (true) {
+            val value = incoming.receiveOrClosed()
+            println("incoming $value from $this")
+            if (value.isClosed) {
+                break
+            }
+        }
+
+    }
+}
+

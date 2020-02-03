@@ -1,4 +1,3 @@
-
 package ru.beryukhov.backend
 
 import io.ktor.application.Application
@@ -6,28 +5,26 @@ import io.ktor.application.install
 import io.ktor.features.*
 import io.ktor.gson.GsonConverter
 import io.ktor.http.ContentType
+import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.content.defaultResource
 import io.ktor.http.content.resources
 import io.ktor.http.content.static
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Location
 import io.ktor.locations.Locations
-import io.ktor.network.selector.ActorSelectorManager
-import io.ktor.network.sockets.aSocket
-import io.ktor.network.sockets.openWriteChannel
+import io.ktor.routing.Routing
 import io.ktor.routing.routing
 import io.ktor.util.KtorExperimentalAPI
-import io.ktor.util.cio.write
+import io.ktor.websocket.WebSockets
+import io.ktor.websocket.webSocket
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.onEach
-import java.net.InetSocketAddress
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.consumeEach
 
-@KtorExperimentalLocationsAPI
+/*@KtorExperimentalLocationsAPI
 @Location("/")
-class Index
+class Index*/
 
 @KtorExperimentalLocationsAPI
 @Location("/post")
@@ -50,6 +47,8 @@ class Users
 class Error
 
 //https://github.com/ktorio/ktor-samples/tree/master/app/youkube
+@ObsoleteCoroutinesApi
+@InternalCoroutinesApi
 @FlowPreview
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
@@ -73,7 +72,7 @@ fun Application.main() {
         register(ContentType.Application.Json, GsonConverter())
     }
 
-    val channel = BroadcastChannel<Any>(1)
+    val channel = BroadcastChannel<Any>(Channel.CONFLATED)
 
     val backendRepository = BackendRepository(
         postRepository = PostRepository(broadcastChannel = channel),
@@ -81,7 +80,10 @@ fun Application.main() {
 
     )
 
-    launchSocket(channel.openSubscription())
+    install(WebSockets)
+    install(Routing) {
+        launchWebSocket(channel)
+    }
 
     // Register all the routes available to this application.
     // To allow better scaling for large applications,
@@ -100,43 +102,31 @@ fun Application.main() {
             // This serves files from the 'web' folder in the application resources.
             resources("web")
         }
+
+
     }
 }
 
-@UseExperimental(FlowPreview::class)
-@KtorExperimentalAPI
-private fun launchSocket(openSubscription: ReceiveChannel<Any>) {
-    GlobalScope.launch {
-        //telnet 127.0.0.1 2324
-        val server = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp()
-            .bind(InetSocketAddress("127.0.0.1", 2324))
-        println("Started echo telnet server at ${server.localAddress}")
-
-        while (true) {
-            val socket = server.accept()
-
-            launch {
-                println("Socket accepted: ${socket.remoteAddress}")
-
-                /*val input = socket.openReadChannel()
-                val output = socket.openWriteChannel(autoFlush = true)
-
-                try {
-                    while (true) {
-                        val line = input.readUTF8Line()
-
-                        println("${socket.remoteAddress}: $line")
-                        output.write("$line received")
-                    }
-                } catch (e: Throwable) {
-                    e.printStackTrace()
-                    socket.close()
-                }*/
-                val output = socket.openWriteChannel(autoFlush = true)
-                openSubscription.consumeAsFlow().onEach {
-                    output.write("Data changed")
-                }
+@InternalCoroutinesApi
+@ObsoleteCoroutinesApi
+@ExperimentalCoroutinesApi
+private fun Routing.launchWebSocket(channel: BroadcastChannel<Any>) {
+    webSocket("/ws") {
+        GlobalScope.launch {
+            channel.consumeEach {
+                println("event got $it")
+                outgoing.send(Frame.Text(it.toString()))
             }
         }
+
+        while (true) {
+            val value = incoming.receiveOrClosed()
+            println("incoming $value from $this")
+            if (value.isClosed) {
+                break
+            }
+        }
+
     }
 }
+

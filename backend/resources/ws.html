@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+Test
+<script>
+    window.addEventListener("load", function () {
+        var socket = new WebSocket("ws://127.0.0.1:8080/ws");
+        socket.onopen = function() {
+            alert("Соединение установлено.");
+        };
+
+        socket.onclose = function(event) {
+            if (event.wasClean) {
+                alert('Соединение закрыто чисто');
+            } else {
+                alert('Обрыв соединения'); // например, "убит" процесс сервера
+            }
+            alert('Код: ' + event.code + ' причина: ' + event.reason);
+        };
+
+        socket.onmessage = function(event) {
+            alert("Получены данные " + event.data);
+        };
+
+        socket.onerror = function(error) {
+            alert("Ошибка " + error.message);
+        };
+    })
+</script>
+</body>
+</html>

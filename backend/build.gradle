@@ -1,7 +1,10 @@
+apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'kotlin'
 apply plugin: 'application'
 
-mainClassName = "io.ktor.server.netty.DevelopmentEngine"
+
+mainClassName = "io.ktor.server.netty.EngineMain"
+
 
 sourceSets {
     main.resources.srcDirs = ['resources']
@@ -25,11 +28,33 @@ dependencies {
     testImplementation "io.mockk:mockk:$mockk_version"
 }
 
+group = 'ru.beryukhov'
+version = '1.0'
+
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
 
 compileKotlin {
     kotlinOptions {
         freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
+    }
+}
+
+jar {
+    baseName 'backend'
+    manifest {
+        attributes 'Main-Class': 'ru.beryukhov.backend.BackendKt'
+    }
+
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+shadowJar {
+
+    baseName 'backend'
+    mainClassName = "io.ktor.server.netty.EngineMain"
+
+    manifest {
+        attributes 'Main-Class': mainClassName
     }
 }

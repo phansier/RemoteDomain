@@ -63,7 +63,7 @@ dependencies {
 
     implementation "io.ktor:ktor-client-gson:$ktor_version"
     implementation "io.ktor:ktor-client-okhttp:$ktor_version"
-    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_logging_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
 
     implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
     implementation "com.squareup.sqldelight:coroutines-extensions-jvm:$sqldelight_version"
@@ -79,6 +79,7 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:$logback_version"
 
 
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 
 
 }

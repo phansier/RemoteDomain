@@ -14,9 +14,10 @@ import ru.beryukhov.common.model.User
  * Created by Andrey Beryukhov
  */
 object NetworkRepository {
-    private val SERVER_URL = "http://10.0.2.2:8080"
-    private val HEADER_CONTENT_TYPE = "Content-Type"
-    private val HEADER_JSON = "application/json"
+    //private val SERVER_URL = "http://10.0.2.2:8080"
+    private const val SERVER_URL = "http://evening-forest-47787.herokuapp.com"
+    private const val HEADER_CONTENT_TYPE = "Content-Type"
+    private const val HEADER_JSON = "application/json"
 
     suspend fun HttpClient.testPosts(log: suspend (String) -> Unit) {
         makeRequest("get<Result.Success<List<Post>>(\"$SERVER_URL/post\")", log) {

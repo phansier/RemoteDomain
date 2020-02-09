@@ -27,38 +27,28 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setupNetworkButton()
         setupDatabaseButton()
+        setupSocketButton()
     }
 
     private fun setupNetworkButton() {
-        val button: Button = findViewById(R.id.button)
+        val button: Button = findViewById(R.id.button_http)
         button.setOnClickListener {
-            GlobalScope.launch {
-                val interceptor = HttpLoggingInterceptor()
-                interceptor.level = if (BuildConfig.DEBUG) BODY else NONE
-                val client = HttpClient(OkHttp) {
-                    install(JsonFeature) {
-                        serializer = GsonSerializer {
-                            serializeNulls()
-                            disableHtmlEscaping()
-                        }
-                    }
-                    engine {
-                        addInterceptor(interceptor)
-                    }
-
-                }
-
-                client.testPosts(::log)
-                client.testUsers(::log)
-                client.testError(::log)
-
-                client.close()
-            }
+            testHttp(::log)
         }
     }
 
     private fun setupDatabaseButton() {
-        testDb(this, ::log)
+        val button: Button = findViewById(R.id.button_db)
+        button.setOnClickListener {
+            testDb(this, ::log)
+        }
+    }
+
+    private fun setupSocketButton(){
+        val button: Button = findViewById(R.id.button_socket)
+        button.setOnClickListener {
+            testSocket(::log)
+        }
     }
 
 

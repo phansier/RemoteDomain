@@ -30,6 +30,12 @@ android {
         exclude 'META-INF/kotlinx-coroutines-core.kotlin_module'
         exclude 'META-INF/atomicfu.kotlin_module'
         exclude 'META-INF/kotlinx-io.kotlin_module'
+        exclude 'META-INF/ktor-client-core.kotlin_module'
+        exclude 'META-INF/ktor-http.kotlin_module'
+        exclude 'META-INF/ktor-http-cio.kotlin_module'
+        exclude 'META-INF/ktor-utils.kotlin_module'
+        exclude 'META-INF/ktor-io.kotlin_module'
+        exclude 'META-INF/ktor-client-websockets.kotlin_module'
     }
 
     compileOptions {
@@ -62,7 +68,16 @@ dependencies {
     implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
     implementation "com.squareup.sqldelight:coroutines-extensions-jvm:$sqldelight_version"
 
-    implementation 'com.google.android.material:material:1.1.0'
+    //implementation 'com.google.android.material:material:1.1.0'
+
+    implementation "io.ktor:ktor-client-websockets:$ktor_version"
+    implementation "io.ktor:ktor-client-websockets-jvm:$ktor_version"
+    //implementation "io.ktor:ktor-client-cio:$ktor_version"
+    //implementation "io.ktor:ktor-client-js:$ktor_version"
+    //implementation "io.ktor:ktor-client-okhttp:$ktor_version"
+
+    implementation "ch.qos.logback:logback-classic:$logback_version"
+
 
 
 

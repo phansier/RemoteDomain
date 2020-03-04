@@ -4,20 +4,9 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.features.json.GsonSerializer
-import io.ktor.client.features.json.JsonFeature
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.logging.HttpLoggingInterceptor
-import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
-import okhttp3.logging.HttpLoggingInterceptor.Level.NONE
-import ru.beryukhov.remote_domain.NetworkRepository.testError
-import ru.beryukhov.remote_domain.NetworkRepository.testPosts
-import ru.beryukhov.remote_domain.NetworkRepository.testUsers
+import ru.beryukhov.remote_domain.push.OkHttpPush
 
 class MainActivity : AppCompatActivity() {
 
@@ -44,10 +33,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupSocketButton(){
+    private fun setupSocketButton() {
         val button: Button = findViewById(R.id.button_socket)
+        val push = OkHttpPush()
         button.setOnClickListener {
-            testSocket(::log)
+            push.startReceive(socketUrl = SOCKET_URL, log = ::log) { }
         }
     }
 

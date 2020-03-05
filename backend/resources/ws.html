@@ -8,10 +8,13 @@
 Test
 <script>
     window.addEventListener("load", function () {
-        var socket = new WebSocket("ws://127.0.0.1:8080/ws");
+        //var socket = new WebSocket("ws://127.0.0.1:8080/ws");
+        var socket = new WebSocket("ws://evening-forest-47787.herokuapp.com/ws");
         socket.onopen = function() {
             alert("Соединение установлено.");
         };
+
+        socket.send("Hello ws");
 
         socket.onclose = function(event) {
             if (event.wasClean) {

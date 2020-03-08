@@ -4,6 +4,7 @@ import ru.beryukhov.common.model.CompletableResult
 import ru.beryukhov.common.model.Post
 import ru.beryukhov.common.model.Result
 import ru.beryukhov.common.model.User
+import kotlin.reflect.KClass
 
 interface Common
 interface Client
@@ -36,8 +37,12 @@ interface DbApi : CommonApi
 
 interface NetworkApi : CommonApi
 
+data class ApiRequest(val method: ApiMethod, val entity: KClass<out Any>) {
+    val json: String get() = "{\"method\":\"${method::class.simpleName}\",\"entity\":\"${entity.simpleName}\"}"
+}
+
 interface ApiMethod
-interface Create<T> : ApiMethod
-interface Read<T> : ApiMethod
-interface Update<T> : ApiMethod
-interface Delete<T> : ApiMethod
+object Create : ApiMethod
+object Read : ApiMethod
+object Update : ApiMethod
+object Delete : ApiMethod

@@ -21,6 +21,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
+import ru.beryukhov.common.ApiRequest
 
 /*@KtorExperimentalLocationsAPI
 @Location("/")
@@ -72,7 +73,7 @@ fun Application.main() {
         register(ContentType.Application.Json, GsonConverter())
     }
 
-    val channel = BroadcastChannel<Any>(Channel.CONFLATED)
+    val channel = BroadcastChannel<ApiRequest>(Channel.CONFLATED)
 
     val backendRepository = BackendRepository(
         postRepository = PostRepository(broadcastChannel = channel),
@@ -110,12 +111,14 @@ fun Application.main() {
 @InternalCoroutinesApi
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
-private fun Routing.launchWebSocket(channel: BroadcastChannel<Any>) {
+private fun Routing.launchWebSocket(channel: BroadcastChannel<ApiRequest>) {
+
     webSocket("/ws") {
         GlobalScope.launch {
             channel.consumeEach {
                 println("event got $it")
-                outgoing.send(Frame.Text(it.toString()))
+                println("event got json ${it.json}")
+                outgoing.send(Frame.Text(it.json))
             }
         }
 

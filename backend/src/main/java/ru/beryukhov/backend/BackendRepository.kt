@@ -20,7 +20,7 @@ class BackendRepository(
     UserApi by userRepository
 
 @ExperimentalCoroutinesApi
-class PostRepository(private val broadcastChannel: BroadcastChannel<Any>) : PostApi {
+class PostRepository(private val broadcastChannel: BroadcastChannel<ApiRequest>) : PostApi {
     @Volatile
     private var nextId: Int = 0
 
@@ -35,7 +35,7 @@ class PostRepository(private val broadcastChannel: BroadcastChannel<Any>) : Post
             message = message
         )
         posts.add(post)
-        broadcastChannel.offer(object : Create<Post> {})
+        broadcastChannel.offer(ApiRequest(method = Create, entity = Post::class))
         return Result.Success(post)
     }
 
@@ -48,13 +48,13 @@ class PostRepository(private val broadcastChannel: BroadcastChannel<Any>) : Post
     }*/
 
     override suspend fun updatePost(post: Post): Result<Post> {
-        broadcastChannel.offer(object : Update<Post> {})
+        broadcastChannel.offer(ApiRequest(method = Update, entity = Post::class))
         TODO("not implemented")
     }
 
     override suspend fun deletePost(post: Post): CompletableResult {
         return if (posts.remove(post)) {
-            broadcastChannel.offer(object : Delete<Post> {})
+            broadcastChannel.offer(ApiRequest(method = Delete, entity = Post::class))
             CompletableResult.Success
         } else CompletableResult.Failure(
             Error.NoSuchElementError("todo")
@@ -64,7 +64,7 @@ class PostRepository(private val broadcastChannel: BroadcastChannel<Any>) : Post
 }
 
 @ExperimentalCoroutinesApi
-class UserRepository(private val broadcastChannel: BroadcastChannel<Any>) : UserApi {
+class UserRepository(private val broadcastChannel: BroadcastChannel<ApiRequest>) : UserApi {
     @Volatile
     private var nextId: Int = 0
 
@@ -78,7 +78,7 @@ class UserRepository(private val broadcastChannel: BroadcastChannel<Any>) : User
             userName = userName
         )
         users.add(user)
-        broadcastChannel.offer(object : Create<User> {})
+        broadcastChannel.offer(ApiRequest(method = Create, entity = User::class))
         return Result.Success(user)
     }
 
@@ -87,13 +87,13 @@ class UserRepository(private val broadcastChannel: BroadcastChannel<Any>) : User
     }
 
     override suspend fun updateUser(user: User): Result<User> {
-        broadcastChannel.offer(object : Update<User> {})
+        broadcastChannel.offer(ApiRequest(method = Update, entity = User::class))
         TODO("not implemented")
     }
 
     override suspend fun deleteUser(user: User): CompletableResult {
         return if (users.remove(user)) {
-            broadcastChannel.offer(object : Delete<User> {})
+            broadcastChannel.offer(ApiRequest(method = Delete, entity = User::class))
             CompletableResult.Success
         } else CompletableResult.Failure(
             Error.NoSuchElementError("todo")

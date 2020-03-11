@@ -12,11 +12,8 @@ import kotlin.coroutines.CoroutineContext
 /**
  * Created by Andrey Beryukhov
  */
-@UseExperimental(
-    InternalCoroutinesApi::class,
-    ExperimentalCoroutinesApi::class,
-    ObsoleteCoroutinesApi::class
-)
+@ObsoleteCoroutinesApi
+@ExperimentalCoroutinesApi
 fun testDb(context: Context, log: suspend (String) -> Unit) {
     val dbRepo = DatabaseRepository(context, log)
     dbRepo.createDb()
@@ -48,11 +45,8 @@ fun testDb(context: Context, log: suspend (String) -> Unit) {
     dbRepo.insertUser(User.Impl("user_id3", "user_name"))
 }
 
-@UseExperimental(
-    InternalCoroutinesApi::class,
-    ExperimentalCoroutinesApi::class,
-    ObsoleteCoroutinesApi::class
-)
+@ObsoleteCoroutinesApi
+@ExperimentalCoroutinesApi
 class DatabaseRepository(context: Context, private val log: suspend (String) -> Unit) {
     private val userQueries: UserQueries
     private val dbContext: CoroutineContext
@@ -84,10 +78,14 @@ class DatabaseRepository(context: Context, private val log: suspend (String) -> 
 
     fun getUserFlow(): Flow<List<User>> {
         return userQueries.selectAll().asFlow()
-            .buffer()
-            .mapLatest { it.executeAsList() }
-            .flowOn(Dispatchers.Default)
-
+            .map {
+                log("getUserFlow map")
+                val list = it.executeAsList()
+                log("getUserFlow map2")
+                list
+            }
+            .flowOn(dbContext)
+            .conflate()
     }
 
     fun insertUser(user: User) {

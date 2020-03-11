@@ -15,7 +15,7 @@ import ru.beryukhov.remote_domain.baserecyclerview.IBaseListItem
 /**
  * Created by Andrey Beryukhov
  */
-class ListAdapter : SimpleListAdapter() {
+class DomainListAdapter : SimpleListAdapter() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
 

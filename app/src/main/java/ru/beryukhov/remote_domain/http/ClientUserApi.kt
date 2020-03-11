@@ -8,7 +8,6 @@ import ru.beryukhov.common.UserApi
 import ru.beryukhov.common.model.CompletableResult
 import ru.beryukhov.common.model.Result
 import ru.beryukhov.common.model.User
-import ru.beryukhov.remote_domain.http.BaseHttpClient
 
 class ClientUserApi(
     private val httpClient: HttpClient,

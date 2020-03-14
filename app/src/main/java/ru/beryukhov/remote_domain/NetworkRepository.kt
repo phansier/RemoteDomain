@@ -21,7 +21,7 @@ import ru.beryukhov.remote_domain.http.ClientUserApi
 
 private const val BASE_URL = "evening-forest-47787.herokuapp.com"
 const val SOCKET_URL = "ws://$BASE_URL"
-private const val SERVER_URL = "http://$BASE_URL"
+const val SERVER_URL = "http://$BASE_URL"
 
 /**
  * Created by Andrey Beryukhov

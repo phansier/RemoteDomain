@@ -1,6 +1,6 @@
 createUserTable:
 CREATE TABLE IF NOT EXISTS User  (
-  id TEXT NOT NULL,
+  id TEXT NOT NULL PRIMARY KEY,
   user_name TEXT NOT NULL
 );
 
@@ -8,8 +8,13 @@ deleteUserTable:
 DROP TABLE IF EXISTS User;
 
 insertUser:
-INSERT INTO User(id, user_name)
+INSERT OR REPLACE INTO User(id, user_name)
 VALUES ?;
+
+deleteUser:
+DELETE
+FROM User
+WHERE id = ?;
 
 selectAll:
 SELECT *

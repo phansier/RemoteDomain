@@ -33,11 +33,11 @@ class DomainListAdapter : SimpleListAdapter() {
         when (holder) {
             is PostViewHolder -> {
                 val postItem = items[position] as PostItem
-                holder.postMessage.text = postItem.post.message
+                holder.postMessage.text = "${postItem.post.id} : ${postItem.post.message}"
             }
             is UserViewHolder -> {
                 val userItem = items[position] as UserItem
-                holder.userName.text = userItem.user.userName
+                holder.userName.text = "${userItem.user.id} : ${userItem.user.userName}"
 
             }
 

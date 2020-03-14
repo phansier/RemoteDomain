@@ -15,16 +15,18 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import ru.beryukhov.common.model.Post
-import ru.beryukhov.common.model.User
+import ru.beryukhov.common.model.Result
+import ru.beryukhov.remote_domain.http.HttpClientRepositoryImpl
 import ru.beryukhov.remote_domain.push.OkHttpPush
 import ru.beryukhov.remote_domain.recycler.DomainListAdapter
 import ru.beryukhov.remote_domain.recycler.UserItem
+
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var dbRepo: DatabaseRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,8 +66,8 @@ class MainActivity : AppCompatActivity() {
                         gson.fromJson<ApiRequest>(it.toString(), ApiRequest::class.java)
                     //todo change User and Post instanses by corresponding type flags
                     when (apiRequest.entity) {
-                        "User" -> broadcastChannel.offer(User("", ""))
-                        "Post" -> broadcastChannel.offer(Post("", "", ""))
+                        "User" -> broadcastChannel.offer(BackUser("", ""))
+                        "Post" -> broadcastChannel.offer(BackPost("", "", ""))
                     }
                 } catch (e: JsonSyntaxException) {
                     Log.i("MainActivity", "JsonSyntaxException $e")
@@ -75,13 +77,38 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        val httpClientRepository =
+            HttpClientRepositoryImpl(::log)
+
         GlobalScope.launch {
             broadcastChannel.consumeEach {
                 log("event got $it")
                 when (it) {
-                    is User -> {/*http<User>->db*/
+                    is BackUser -> {/*http<User>->db*/
+                        val users = httpClientRepository.clientUserApi.getUsers()
+                        if (users is Result.Success){
+                            val backUsersMap = users.value.associateBy({ it.id }, { it })
+                            val dbUserIds = dbRepo.getUsers().map { it.id }
+
+                            for (dbUserId in dbUserIds){
+                                if (! backUsersMap.contains(dbUserId)){
+                                    //remove values from db that are not in backend
+                                    dbRepo.deleteUser(dbUserId)
+                                }
+                                else{
+                                    //update values from db that are in backend
+                                    dbRepo.insertUser(backUsersMap.getValue(dbUserId).map())
+                                }
+                            }
+                            //update values from backend that are not in db
+                            for (backUserId in backUsersMap.keys) {
+                                if (!dbUserIds.contains(backUserId)) {
+                                    dbRepo.insertUser(backUsersMap.getValue(backUserId).map())
+                                }
+                            }
+                        }
                     }
-                    is Post -> {/*http<Post>->db*/
+                    is BackPost -> {/*http<Post>->db*/
                     }
                 }
             }
@@ -92,7 +119,7 @@ class MainActivity : AppCompatActivity() {
         val button: Button = findViewById(R.id.button_create_db)
         val adapter = setupRecycler()
 
-        val dbRepo = DatabaseRepository(this, ::log)
+        dbRepo = DatabaseRepository(this, ::log)
 
         button.setOnClickListener {
             dbRepo.createDb()
@@ -103,7 +130,7 @@ class MainActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     adapter.clearAll()
                     adapter.add(it
-                        .map { dbUser -> User(dbUser.id, dbUser.user_name) }
+                        .map(User::map)
                         .map { item -> UserItem(item) }
                     )
                 }
@@ -111,7 +138,7 @@ class MainActivity : AppCompatActivity() {
 
 
             //todo remove
-            GlobalScope.launch {
+            /*GlobalScope.launch {
                 for (i in 1..8) {
                     Log.d("DR_", "emit $i")
                     delay(2000)
@@ -122,7 +149,7 @@ class MainActivity : AppCompatActivity() {
                         )
                     )
                 }
-            }
+            }*/
         }
     }
 

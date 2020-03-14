@@ -5,6 +5,7 @@ import android.util.Log
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.runtime.coroutines.asFlow
+import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlin.coroutines.CoroutineContext
@@ -78,15 +79,16 @@ class DatabaseRepository(context: Context, private val log: suspend (String) -> 
 
     fun getUserFlow(): Flow<List<User>> {
         return userQueries.selectAll().asFlow()
-            .map {
-                log("getUserFlow map")
-                val list = it.executeAsList()
-                log("getUserFlow map2")
-                list
-            }
+            .mapToList(dbContext)
             .flowOn(dbContext)
             .conflate()
     }
+
+    fun getUsers(): List<User> {
+        return userQueries.selectAll().executeAsList()
+    }
+
+    fun deleteUser(id: String) = userQueries.deleteUser(id)
 
     fun insertUser(user: User) {
         CoroutineScope(dbContext).launch {

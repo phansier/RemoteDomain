@@ -8,7 +8,10 @@ import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import ru.beryukhov.client_lib.db.Dao
+import ru.beryukhov.common.model.Entity
 import kotlin.coroutines.CoroutineContext
+import kotlin.reflect.KClass
 
 /**
  * Created by Andrey Beryukhov
@@ -16,8 +19,10 @@ import kotlin.coroutines.CoroutineContext
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 fun testDb(context: Context, log: suspend (String) -> Unit) {
-    val dbRepo = DatabaseRepository(context, log)
-    dbRepo.createDb()
+    val userDao = UserDao(context, log)
+    val dbRepo = DatabasePreferencesImpl().apply { addDao(BackUser::class,userDao)}
+
+    userDao.createTable()
     /*userQueries.selectAll().addListener(object : Query.Listener {
         override fun queryResultsChanged() {
             Log.d("DR_", "onEach")
@@ -28,7 +33,7 @@ fun testDb(context: Context, log: suspend (String) -> Unit) {
         }
     })*/
     CoroutineScope(Dispatchers.Default).launch {
-        dbRepo.getUserFlow().collect {
+        userDao.getEntitiesFlow().collect {
             Log.d("DR_", "onEach")
             log(it.toString())
         }
@@ -37,18 +42,37 @@ fun testDb(context: Context, log: suspend (String) -> Unit) {
     //Thread.sleep(1000)
 
     Log.d("DR_", "emit 1")
-    dbRepo.insertUser(User.Impl("user_id0", "user_name"))
+    userDao.insert(BackUser("user_id0", "user_name"))
     Log.d("DR_", "emit 2")
-    dbRepo.insertUser(User.Impl("user_id1", "user_name"))
+    userDao.insert(BackUser("user_id1", "user_name"))
     Log.d("DR_", "emit 3")
-    dbRepo.insertUser(User.Impl("user_id2", "user_name"))
+    userDao.insert(BackUser("user_id2", "user_name"))
     Log.d("DR_", "emit 4")
-    dbRepo.insertUser(User.Impl("user_id3", "user_name"))
+    userDao.insert(BackUser("user_id3", "user_name"))
+}
+
+interface DatabasePreferences{
+    fun addDao(entity: KClass<out Entity>, dao: Dao<out Entity>)
+    fun getDao(entity: KClass<out Entity>): Dao<out Entity>?
+}
+class DatabasePreferencesImpl():DatabasePreferences{
+    private val daos = mutableMapOf<KClass<out Entity>, Dao<out Entity>>()
+
+    override fun addDao(entity: KClass<out Entity>, dao: Dao<out Entity>) {
+        synchronized(this){
+            daos.put(entity, dao)
+        }
+    }
+    override fun getDao(entity: KClass<out Entity>): Dao<out Entity>? {
+        synchronized(this){
+            return daos[entity]
+        }
+    }
 }
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
-class DatabaseRepository(context: Context, private val log: suspend (String) -> Unit) {
+class UserDao(context: Context, private val log: suspend (String) -> Unit): Dao<BackUser> {
     private val userQueries: UserQueries
     private val dbContext: CoroutineContext
 
@@ -60,7 +84,7 @@ class DatabaseRepository(context: Context, private val log: suspend (String) -> 
         dbContext = newSingleThreadContext("DB")
     }
 
-    fun createDb() {
+    override fun createTable() {
         CoroutineScope(dbContext).launch {
             log("DatabaseRepository:createDb() start")
             userQueries.deleteUserTable()
@@ -69,7 +93,7 @@ class DatabaseRepository(context: Context, private val log: suspend (String) -> 
         }
     }
 
-    fun deleteDb() {
+    override fun deleteTable() {
         CoroutineScope(dbContext).launch {
             log("DatabaseRepository:deleteDb() start")
             userQueries.deleteUserTable()
@@ -77,22 +101,23 @@ class DatabaseRepository(context: Context, private val log: suspend (String) -> 
         }
     }
 
-    fun getUserFlow(): Flow<List<User>> {
+    override fun getEntitiesFlow(): Flow<List<BackUser>> {
         return userQueries.selectAll().asFlow()
             .mapToList(dbContext)
             .flowOn(dbContext)
             .conflate()
+            .map{list->list.map(User::map)}
     }
 
-    fun getUsers(): List<User> {
-        return userQueries.selectAll().executeAsList()
+    override fun getEntities(): List<BackUser> {
+        return userQueries.selectAll().executeAsList().map(User::map)
     }
 
-    fun deleteUser(id: String) = userQueries.deleteUser(id)
+    override fun delete(id: String) = userQueries.deleteUser(id)
 
-    fun insertUser(user: User) {
+    override fun insert(entity: BackUser) {
         CoroutineScope(dbContext).launch {
-            userQueries.insertUser(user)
+            userQueries.insertUser(entity.map())
         }
     }
 }

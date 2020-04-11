@@ -15,6 +15,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import ru.beryukhov.client_lib.db.Dao
 import ru.beryukhov.common.model.Result
 import ru.beryukhov.remote_domain.http.HttpClientRepositoryImpl
 import ru.beryukhov.remote_domain.push.OkHttpPush
@@ -26,7 +27,7 @@ import ru.beryukhov.remote_domain.recycler.UserItem
 @ExperimentalCoroutinesApi
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var dbRepo: DatabaseRepository
+    private lateinit var dbRepo: DatabasePreferencesImpl
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,8 +78,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val httpClientRepository =
-            HttpClientRepositoryImpl(::log)
+        val httpClientRepository = HttpClientRepositoryImpl(::log)
+        //val userDao = UserDao(context, log)
+        //val dbRepo = DatabasePreferencesImpl().addDao(BackUser::class,userDao)
 
         GlobalScope.launch {
             broadcastChannel.consumeEach {
@@ -88,22 +90,23 @@ class MainActivity : AppCompatActivity() {
                         val users = httpClientRepository.clientUserApi.getUsers()
                         if (users is Result.Success){
                             val backUsersMap = users.value.associateBy({ it.id }, { it })
-                            val dbUserIds = dbRepo.getUsers().map { it.id }
+                            val userDao = dbRepo.getDao(BackUser::class) as Dao<BackUser>
+                            val dbUserIds = userDao.getEntities().map { it.id }
 
                             for (dbUserId in dbUserIds){
                                 if (! backUsersMap.contains(dbUserId)){
                                     //remove values from db that are not in backend
-                                    dbRepo.deleteUser(dbUserId)
+                                    userDao.delete(dbUserId)
                                 }
                                 else{
                                     //update values from db that are in backend
-                                    dbRepo.insertUser(backUsersMap.getValue(dbUserId).map())
+                                    userDao.insert(backUsersMap.getValue(dbUserId))
                                 }
                             }
                             //update values from backend that are not in db
                             for (backUserId in backUsersMap.keys) {
                                 if (!dbUserIds.contains(backUserId)) {
-                                    dbRepo.insertUser(backUsersMap.getValue(backUserId).map())
+                                    userDao.insert(backUsersMap.getValue(backUserId))
                                 }
                             }
                         }
@@ -119,18 +122,19 @@ class MainActivity : AppCompatActivity() {
         val button: Button = findViewById(R.id.button_create_db)
         val adapter = setupRecycler()
 
-        dbRepo = DatabaseRepository(this, ::log)
+
+        dbRepo = DatabasePreferencesImpl().apply{addDao(BackUser::class,UserDao(this@MainActivity, ::log))}
+        val userDao = dbRepo.getDao(BackUser::class) as Dao<BackUser>
 
         button.setOnClickListener {
-            dbRepo.createDb()
-            dbRepo.getUserFlow().onEach {
+            userDao.createTable()
+            userDao.getEntitiesFlow().onEach {
                 Log.d("DR_", "onEach")
                 log(it.toString())
 
                 withContext(Dispatchers.Main) {
                     adapter.clearAll()
                     adapter.add(it
-                        .map(User::map)
                         .map { item -> UserItem(item) }
                     )
                 }

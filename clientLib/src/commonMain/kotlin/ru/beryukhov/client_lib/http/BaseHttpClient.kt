@@ -1,4 +1,4 @@
-package ru.beryukhov.remote_domain.http
+package ru.beryukhov.client_lib.http
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.ResponseException
@@ -8,11 +8,11 @@ import ru.beryukhov.common.model.Result
 
 open class BaseHttpClient {
     companion object {
-        val HEADER_CONTENT_TYPE = "Content-Type"
-        val HEADER_JSON = "application/json"
+        const val HEADER_CONTENT_TYPE = "Content-Type"
+        const val HEADER_JSON = "application/json"
     }
 
-    suspend inline fun <reified T> HttpClient.makeRequest(
+    suspend inline fun <T> HttpClient.makeRequest(
         logMessage: String,
         log: suspend (String) -> Unit,
         block: HttpClient.() -> Result.Success<T>

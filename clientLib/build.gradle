@@ -1,7 +1,10 @@
-apply plugin: 'kotlin-multiplatform'
+plugins {
+    id("kotlin-multiplatform")
+}
+
 kotlin {
 
-    jvm()
+    jvm() //android
 
     sourceSets {
         commonMain.dependencies {
@@ -10,8 +13,8 @@ kotlin {
             implementation 'org.jetbrains.kotlin:kotlin-stdlib'
             implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$coroutines_version"
 
-            //implementation "io.ktor:ktor-client-core:$ktor_version"
-            //implementation "io.ktor:ktor-client-json:$ktor_version"
+            implementation "io.ktor:ktor-client-core:$ktor_version"
+            implementation "io.ktor:ktor-client-json:$ktor_version"
         }
 
         commonTest.dependencies {
@@ -27,9 +30,12 @@ kotlin {
             implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
             implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
 
-            //implementation "io.ktor:ktor-client-core-jvm:$ktor_version"
-            //implementation "io.ktor:ktor-client-android:$ktor_version"
-            //implementation "io.ktor:ktor-client-json-jvm:$ktor_version"
+            implementation "io.ktor:ktor-client-json-jvm:$ktor_version"
+            implementation "io.ktor:ktor-client-okhttp:$ktor_version"
+            implementation "io.ktor:ktor-client-gson:$ktor_version"
+
+            //android specific
+            implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
         }
 
         jvmTest.dependencies {

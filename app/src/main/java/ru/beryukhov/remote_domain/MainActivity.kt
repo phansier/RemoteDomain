@@ -16,8 +16,13 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import ru.beryukhov.client_lib.db.Dao
+import ru.beryukhov.client_lib.db.DatabaseImpl
 import ru.beryukhov.common.model.Result
-import ru.beryukhov.remote_domain.http.HttpClientRepositoryImpl
+import ru.beryukhov.common.model.User
+import ru.beryukhov.remote_domain.db.UserDao
+import ru.beryukhov.remote_domain.db.testDb
+import ru.beryukhov.client_lib.http.HttpClientRepositoryImpl
+import ru.beryukhov.common.model.Post
 import ru.beryukhov.remote_domain.push.OkHttpPush
 import ru.beryukhov.remote_domain.recycler.DomainListAdapter
 import ru.beryukhov.remote_domain.recycler.UserItem
@@ -27,7 +32,7 @@ import ru.beryukhov.remote_domain.recycler.UserItem
 @ExperimentalCoroutinesApi
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var dbRepo: DatabasePreferencesImpl
+    private lateinit var dbRepo: DatabaseImpl
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,8 +72,8 @@ class MainActivity : AppCompatActivity() {
                         gson.fromJson<ApiRequest>(it.toString(), ApiRequest::class.java)
                     //todo change User and Post instanses by corresponding type flags
                     when (apiRequest.entity) {
-                        "User" -> broadcastChannel.offer(BackUser("", ""))
-                        "Post" -> broadcastChannel.offer(BackPost("", "", ""))
+                        "User" -> broadcastChannel.offer(User("", ""))
+                        "Post" -> broadcastChannel.offer(Post("", "", ""))
                     }
                 } catch (e: JsonSyntaxException) {
                     Log.i("MainActivity", "JsonSyntaxException $e")
@@ -78,7 +83,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val httpClientRepository = HttpClientRepositoryImpl(::log)
+        val httpClientRepository =
+            HttpClientRepositoryImpl(SERVER_URL, BuildConfig.DEBUG,::log)
         //val userDao = UserDao(context, log)
         //val dbRepo = DatabasePreferencesImpl().addDao(BackUser::class,userDao)
 
@@ -86,11 +92,12 @@ class MainActivity : AppCompatActivity() {
             broadcastChannel.consumeEach {
                 log("event got $it")
                 when (it) {
-                    is BackUser -> {/*http<User>->db*/
-                        val users = httpClientRepository.clientUserApi.getUsers()
-                        if (users is Result.Success){
-                            val backUsersMap = users.value.associateBy({ it.id }, { it })
-                            val userDao = dbRepo.getDao(BackUser::class) as Dao<BackUser>
+                    is User -> {/*http<User>->db*/
+                        val result = httpClientRepository.clientApi.get("user") as Result<List<User>>//todo user to hashmap
+                        if (result is Result.Success){
+                            val users = result.value
+                            val backUsersMap = users.associateBy({ it.id }, { it })
+                            val userDao = dbRepo.getDao(User::class) as Dao<User>
                             val dbUserIds = userDao.getEntities().map { it.id }
 
                             for (dbUserId in dbUserIds){
@@ -111,7 +118,7 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    is BackPost -> {/*http<Post>->db*/
+                    is Post -> {/*http<Post>->db*/
                     }
                 }
             }
@@ -123,8 +130,10 @@ class MainActivity : AppCompatActivity() {
         val adapter = setupRecycler()
 
 
-        dbRepo = DatabasePreferencesImpl().apply{addDao(BackUser::class,UserDao(this@MainActivity, ::log))}
-        val userDao = dbRepo.getDao(BackUser::class) as Dao<BackUser>
+        dbRepo = DatabaseImpl().apply{addDao(User::class,
+            UserDao(this@MainActivity, ::log)
+        )}
+        val userDao = dbRepo.getDao(User::class) as Dao<User>
 
         button.setOnClickListener {
             userDao.createTable()

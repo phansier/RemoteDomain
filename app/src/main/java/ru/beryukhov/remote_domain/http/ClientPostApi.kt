@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import ru.beryukhov.client_lib.http.BaseHttpClient
 import ru.beryukhov.common.PostApi
 import ru.beryukhov.common.model.CompletableResult
 import ru.beryukhov.common.model.Post

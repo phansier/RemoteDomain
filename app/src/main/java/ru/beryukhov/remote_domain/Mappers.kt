@@ -1,7 +1,8 @@
 package ru.beryukhov.remote_domain
 
-typealias BackUser = ru.beryukhov.common.model.User
-typealias BackPost = ru.beryukhov.common.model.Post
+private typealias BackUser = ru.beryukhov.common.model.User
+typealias DbUser = ru.beryukhov.remote_domain.User
+private typealias BackPost = ru.beryukhov.common.model.Post
 
 
 fun User.map() = BackUser(id, user_name)

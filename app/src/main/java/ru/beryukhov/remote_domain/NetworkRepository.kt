@@ -1,20 +1,20 @@
 package ru.beryukhov.remote_domain
 
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.okhttp.OkHttp
+//import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.features.json.GsonSerializer
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.get
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import okhttp3.logging.HttpLoggingInterceptor
+//import okhttp3.logging.HttpLoggingInterceptor
 import ru.beryukhov.common.model.Post
 import ru.beryukhov.common.model.Result
 import ru.beryukhov.common.model.User
 import ru.beryukhov.remote_domain.NetworkRepository.testError
 import ru.beryukhov.remote_domain.NetworkRepository.testPosts
 import ru.beryukhov.remote_domain.NetworkRepository.testUsers
-import ru.beryukhov.remote_domain.http.BaseHttpClient
+import ru.beryukhov.client_lib.http.BaseHttpClient
 import ru.beryukhov.remote_domain.http.ClientPostApi
 import ru.beryukhov.remote_domain.http.ClientUserApi
 
@@ -27,7 +27,8 @@ const val SERVER_URL = "http://$BASE_URL"
  * Created by Andrey Beryukhov
  */
 fun testHttp(log: suspend (String) -> Unit) {
-    GlobalScope.launch {
+    //todo return
+    /*GlobalScope.launch {
         val interceptor = HttpLoggingInterceptor()
         interceptor.level =
             if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
@@ -49,7 +50,7 @@ fun testHttp(log: suspend (String) -> Unit) {
         client.testError(log)
 
         client.close()
-    }
+    }*/
 }
 
 
@@ -82,9 +83,10 @@ object NetworkRepository : BaseHttpClient() {
     }
 
     suspend fun HttpClient.testError(log: suspend (String) -> Unit) {
-        makeRequest("get<Result.Success<List<User>>>(\"$SERVER_URL/error\")", log) {
+        //todo return
+        /*makeRequest("get<Result.Success<List<User>>>(\"$SERVER_URL/error\")", log) {
             get<Result.Success<List<User>>>("$SERVER_URL/error")
-        }
+        }*/
     }
 
 }

@@ -13,25 +13,65 @@ import ru.beryukhov.common.model.Error
 @ExperimentalCoroutinesApi
 class BackendRepository(
     private val entityRepository: EntityRepository
-) :  Backend,
+) : Backend,
     EntityApi by entityRepository
+
+data class User(val id: String, val userName: String) {
+    val entity get() = Pair(id, Entity(leaf = userName))
+    constructor(id:String,entity: Entity) : this(id, entity.leaf?:"")
+}
+
+data class Post(val id: String, val userId: String, val message: String) {
+    companion object{
+        private const val USER_ID = "UserId"
+        private const val MESSAGE = "Message"
+    }
+    val entity get() = Pair(
+        id, Entity(
+            mapOf(
+                USER_ID to Entity(leaf = userId),
+                MESSAGE to Entity(leaf = message)
+            )
+        )
+    )
+
+    constructor(id: String, entity: Entity) : this(
+        id,
+        entity.data?.get(USER_ID)?.leaf ?: "",
+        entity.data?.get(MESSAGE)?.leaf ?: ""
+    )
+}
+
 @ExperimentalCoroutinesApi
 class EntityRepository(private val broadcastChannel: BroadcastChannel<ApiRequest>) : EntityApi {
     @Volatile
     private var nextUserId: Int = 0
 
+    private val testUser = User("0", "TestaTestovna")
+    private val testPost = Post("0", "0", "Coronavirus")
+
     private val entities = mutableListOf<Entity>(
-        Entity(mapOf(
-            "Users" to Entity(mapOf(
-                "-1" to Entity(leaf= "TestTestov")
-            )),
-            "Posts" to Entity(mapOf(
-                "-1" to Entity(mapOf(
-                    "Message" to Entity(leaf ="Hello world"),
-                    "UserName" to Entity(leaf ="-1")
-                ))
-            ))
-        ))
+        Entity(
+            mapOf(
+                "User" to Entity(
+                    mapOf(
+                        "-1" to Entity(leaf = "TestTestov"),
+                        testUser.entity
+                    )
+                ),
+                "Post" to Entity(
+                    mapOf(
+                        "-1" to Entity(
+                            mapOf(
+                                "UserId" to Entity(leaf = "-1"),
+                                "Message" to Entity(leaf = "Hello world")
+                            )
+                        ),
+                        testPost.entity
+                    )
+                )
+            )
+        )
     )
 
     override suspend fun create(entity: Entity): Result<Entity> {

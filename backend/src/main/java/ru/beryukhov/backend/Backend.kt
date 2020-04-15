@@ -28,20 +28,16 @@ import ru.beryukhov.common.ApiRequest
 class Index*/
 
 @KtorExperimentalLocationsAPI
-@Location("/post")
-class Posts
+@Location("/entity")
+class Entities
 
-@KtorExperimentalLocationsAPI
+/*@KtorExperimentalLocationsAPI
 @Location("/diff/post")
 class PostsDiff
 
 @KtorExperimentalLocationsAPI
-@Location("/post/{id}")
-data class Post(val id: String)
-
-@KtorExperimentalLocationsAPI
-@Location("/user")
-class Users
+@Location("/entity/{id}")
+data class Entity(val id: String)*/
 
 @KtorExperimentalLocationsAPI
 @Location("/error")
@@ -76,9 +72,7 @@ fun Application.main() {
     val channel = BroadcastChannel<ApiRequest>(Channel.CONFLATED)
 
     val backendRepository = BackendRepository(
-        postRepository = PostRepository(broadcastChannel = channel),
-        userRepository = UserRepository(broadcastChannel = channel)
-
+        entityRepository = EntityRepository(broadcastChannel = channel)
     )
 
     install(WebSockets)
@@ -90,9 +84,7 @@ fun Application.main() {
     // To allow better scaling for large applications,
     // we have moved those route registrations into several extension methods and files.
     routing {
-        posts(backendRepository)
-        postsDiff(backendRepository)
-        users(backendRepository)
+        entities(backendRepository)
 
         error()
 

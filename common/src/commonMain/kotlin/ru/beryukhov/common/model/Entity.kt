@@ -1,5 +1,10 @@
 package ru.beryukhov.common.model
 
-interface Entity {
-}
+data class Entity(/*val name: String, */val data: Map<String,Entity>? = null, val leaf: String? = null)
+
+/*
+data class Structure(val name: String, val data: Entity): Entity()
+
+data class DataLeaf<T>(val data: T): Entity()
+*/
 

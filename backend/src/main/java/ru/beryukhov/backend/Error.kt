@@ -9,8 +9,8 @@ import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.get
 import io.ktor.response.respond
 import io.ktor.routing.Route
-import ru.beryukhov.common.model.Result
-import ru.beryukhov.common.model.User
+import ru.beryukhov.common.model.Entity
+import ru.beryukhov.common.model.Failure
 
 /**
  * Created by Andrey Beryukhov
@@ -25,7 +25,7 @@ fun Route.error() {
         .create()
 
     get<Error> {
-        val users = Result.Failure<User>(NoSuchElementError(""))
+        val users = Failure<Entity>(NoSuchElementError(""))
         call.respond(
             status = HttpStatusCode.InternalServerError,
             message = TextContent(

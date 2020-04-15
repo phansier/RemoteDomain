@@ -9,28 +9,30 @@ import io.ktor.locations.*
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.beryukhov.common.model.CompletableResult
-import ru.beryukhov.common.model.Post
-import ru.beryukhov.common.model.Result
+import ru.beryukhov.common.model.Entity
+import ru.beryukhov.common.model.Success
 
 
 /**
  * Created by Andrey Beryukhov
  */
 
+@ExperimentalCoroutinesApi
 @KtorExperimentalLocationsAPI
-fun Route.posts(
+fun Route.entities(
     backendRepository: BackendRepository
 ) {
     val gson = GsonBuilder()
         .setPrettyPrinting()
         .create()
 
-    post<Posts> {
-        val post = call.receive<Post>()
-        val result = backendRepository.createPost(userId = post.userId, message = post.message)
+    post<Entities> {
+        val entity = call.receive<Entity>()
+        val result = backendRepository.create(entity)
         call.respond(
-            status = if (result is Result.Success) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions
+            status = if (result is Success) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions
             message = TextContent(
                 gson.toJson(result),
                 ContentType.Application.Json
@@ -38,10 +40,10 @@ fun Route.posts(
         )
     }
 
-    get<Posts> {
-        val posts = backendRepository.getPosts()
+    get<Entities> {
+        val posts = backendRepository.get()
         call.respond(
-            status = if (posts is Result.Success) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions
+            status = if (posts is Success) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions
             message = TextContent(
                 gson.toJson(posts),
                 ContentType.Application.Json
@@ -49,13 +51,13 @@ fun Route.posts(
         )
     }
 
-    put<Posts> {
+    put<Entities> {
         TODO("not implemented")
     }
 
-    delete<Posts> {
-        val post = call.receive<Post>()
-        val result = backendRepository.deletePost(post)
+    delete<Entities> {
+        val entity = call.receive<Entity>()
+        val result = backendRepository.delete(entity)
         call.respond(
             status = if (result is CompletableResult.Success) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions
             message = TextContent(

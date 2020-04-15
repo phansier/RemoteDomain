@@ -1,9 +1,8 @@
 package ru.beryukhov.common
 
 import ru.beryukhov.common.model.CompletableResult
-import ru.beryukhov.common.model.Post
+import ru.beryukhov.common.model.Entity
 import ru.beryukhov.common.model.Result
-import ru.beryukhov.common.model.User
 import kotlin.reflect.KClass
 
 interface Common
@@ -11,32 +10,23 @@ interface Client
 interface Backend
 
 
-interface UserApi {
-    //crud User
-    suspend fun createUser(userName: String): Result<User>
 
-    suspend fun getUsers(): Result<List<User>>
-    suspend fun updateUser(user: User): Result<User>
-    suspend fun deleteUser(user: User): CompletableResult
-}
-interface PostApi {
-    //crud Post
-    suspend fun createPost(userId: String, message: String): Result<Post>
+interface EntityApi {
+    //crud Entity
+    suspend fun create(entity: Entity): Result<Entity>
 
-    suspend fun getPosts(): Result<List<Post>>
-    suspend fun updatePost(post: Post): Result<Post>
-    suspend fun deletePost(post: Post): CompletableResult
-
-    //suspend fun getPostsDiff(from: Long, to: Long)//: Result<Diff<List<Post>>>
+    suspend fun get(): Result<List<Entity>>
+    suspend fun update(entity: Entity): Result<Entity>
+    suspend fun delete(entity: Entity): CompletableResult
 }
 
-interface CommonApi : UserApi, PostApi
+/*interface CommonApi : EntityApi
 
 interface RepoApi : CommonApi
 
 interface DbApi : CommonApi
 
-interface NetworkApi : CommonApi
+interface NetworkApi : CommonApi*/
 
 data class ApiRequest(val method: ApiMethod, val entity: KClass<out Any>) {
     val json: String get() = "{\"method\":\"${method::class.simpleName}\",\"entity\":\"${entity.simpleName}\"}"

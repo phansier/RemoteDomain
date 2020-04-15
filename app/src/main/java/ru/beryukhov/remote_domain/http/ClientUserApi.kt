@@ -5,7 +5,7 @@ import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import ru.beryukhov.client_lib.http.BaseHttpClient
-import ru.beryukhov.common.UserApi
+import ru.beryukhov.client_lib.http.ClientApi
 import ru.beryukhov.common.model.CompletableResult
 import ru.beryukhov.common.model.Result
 import ru.beryukhov.common.model.User
@@ -15,30 +15,29 @@ class ClientUserApi(
     private val serverUrl: String,
     private val log: suspend (String) -> Unit
 ) : BaseHttpClient(),
-    UserApi {
-    override suspend fun createUser(userName: String): Result<User> =
-        httpClient.makeRequest("post<Result.Success<User>>(\"$serverUrl/user\")", log) {
-            post<Result.Success<User>>("$serverUrl/user") {
-                body = User("0", userName)
+    ClientApi<User> {
+    override suspend fun create(entity: User, endpoint: String): Result<User> =
+        httpClient.makeRequest("post(\"$serverUrl/$endpoint\")", log) {
+            post<Result.Success<User>>("$serverUrl/$endpoint") {
+                body = entity
                 headers.append(HEADER_CONTENT_TYPE, HEADER_JSON)
             }
         }
 
-    override suspend fun getUsers(): Result<List<User>> =
-        httpClient.makeRequest("get<Result.Success<List<User>>(\"$serverUrl/user\")", log) {
-            get<Result.Success<List<User>>>("$serverUrl/user")
+    override suspend fun get(endpoint: String): Result<List<User>> =
+        httpClient.makeRequest("get(\"$serverUrl/$endpoint\")", log) {
+            get<Result.Success<List<User>>>("$serverUrl/$endpoint")
         }
 
-    override suspend fun updateUser(user: User): Result<User> {
+    override suspend fun update(entity: User, endpoint: String): Result<User> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override suspend fun deleteUser(user: User): CompletableResult =
-        httpClient.makeCompletableRequest("delete(\"$serverUrl/user\")", log) {
-            delete("$serverUrl/user") {
-                body = user
+    override suspend fun delete(entity: User, endpoint: String): CompletableResult =
+        httpClient.makeCompletableRequest("delete(\"$serverUrl/$endpoint\")", log) {
+            delete("$serverUrl/$endpoint") {
+                body = entity
                 headers.append(HEADER_CONTENT_TYPE, HEADER_JSON)
             }
         }
-
 }

@@ -23,6 +23,7 @@ import ru.beryukhov.remote_domain.db.UserDao
 import ru.beryukhov.remote_domain.db.testDb
 import ru.beryukhov.client_lib.http.HttpClientRepositoryImpl
 import ru.beryukhov.common.model.Post
+import ru.beryukhov.remote_domain.http.ClientUserApi
 import ru.beryukhov.remote_domain.push.OkHttpPush
 import ru.beryukhov.remote_domain.recycler.DomainListAdapter
 import ru.beryukhov.remote_domain.recycler.UserItem
@@ -83,8 +84,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val httpClientRepository =
-            HttpClientRepositoryImpl(SERVER_URL, BuildConfig.DEBUG,::log)
+        val httpClientRepository = HttpClientRepositoryImpl(SERVER_URL, BuildConfig.DEBUG,::log)
+        val clientUserApi = ClientUserApi(httpClientRepository.httpClient, SERVER_URL, ::log)
+        httpClientRepository.addClientApi(User::class, clientUserApi)
         //val userDao = UserDao(context, log)
         //val dbRepo = DatabasePreferencesImpl().addDao(BackUser::class,userDao)
 
@@ -93,8 +95,9 @@ class MainActivity : AppCompatActivity() {
                 log("event got $it")
                 when (it) {
                     is User -> {/*http<User>->db*/
-                        val result = httpClientRepository.clientApi.get("user") as Result<List<User>>//todo user to hashmap
+                        val result = httpClientRepository.getClientApi(User::class)?.get("user") as Result<List<User>>?//todo user to hashmap
                         if (result is Result.Success){
+                            log("result success")
                             val users = result.value
                             val backUsersMap = users.associateBy({ it.id }, { it })
                             val userDao = dbRepo.getDao(User::class) as Dao<User>
@@ -117,6 +120,7 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
                         }
+                        log("result: $result")
                     }
                     is Post -> {/*http<Post>->db*/
                     }
@@ -133,11 +137,11 @@ class MainActivity : AppCompatActivity() {
         dbRepo = DatabaseImpl().apply{addDao(User::class,
             UserDao(this@MainActivity, ::log)
         )}
-        val userDao = dbRepo.getDao(User::class) as Dao<User>
+        val userDao = dbRepo.getDao(User::class) as Dao<User>?
 
         button.setOnClickListener {
-            userDao.createTable()
-            userDao.getEntitiesFlow().onEach {
+            userDao?.createTable()
+            userDao?.getEntitiesFlow()?.onEach {
                 Log.d("DR_", "onEach")
                 log(it.toString())
 
@@ -147,7 +151,7 @@ class MainActivity : AppCompatActivity() {
                         .map { item -> UserItem(item) }
                     )
                 }
-            }.launchIn(CoroutineScope(Dispatchers.Default))
+            }?.launchIn(CoroutineScope(Dispatchers.Default))
 
 
             //todo remove

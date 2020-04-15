@@ -60,26 +60,28 @@ object NetworkRepository : BaseHttpClient() {
         val clientPostApi =
             ClientPostApi(this, SERVER_URL, log)
 
-        with(clientPostApi) {
+        //todo return
+        /*with(clientPostApi) {
             getPosts()
             createPost("1", "New post")
             getPosts()
             deletePost(Post("-1", "-1", "Test Post //Todo Remove"))
             getPosts()
-        }
+        }*/
     }
 
     suspend fun HttpClient.testUsers(log: suspend (String) -> Unit) {
         val clientPostApi =
             ClientUserApi(this, SERVER_URL, log)
 
-        with(clientPostApi) {
+        //todo return
+        /*with(clientPostApi) {
             getUsers()
             createUser("New user")
             getUsers()
             deleteUser(User("-1", "Test Testov //Todo Remove"))
             getUsers()
-        }
+        }*/
     }
 
     suspend fun HttpClient.testError(log: suspend (String) -> Unit) {

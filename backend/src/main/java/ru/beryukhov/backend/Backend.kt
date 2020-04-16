@@ -10,7 +10,6 @@ import io.ktor.http.content.defaultResource
 import io.ktor.http.content.resources
 import io.ktor.http.content.static
 import io.ktor.locations.KtorExperimentalLocationsAPI
-import io.ktor.locations.Location
 import io.ktor.locations.Locations
 import io.ktor.routing.Routing
 import io.ktor.routing.routing
@@ -21,27 +20,10 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
+import ru.beryukhov.backend.routes.entities
+import ru.beryukhov.backend.routes.error
+import ru.beryukhov.backend.routes.styles
 import ru.beryukhov.common.ApiRequest
-
-/*@KtorExperimentalLocationsAPI
-@Location("/")
-class Index*/
-
-@KtorExperimentalLocationsAPI
-@Location("/entity")
-class Entities
-
-/*@KtorExperimentalLocationsAPI
-@Location("/diff/post")
-class PostsDiff
-
-@KtorExperimentalLocationsAPI
-@Location("/entity/{id}")
-data class Entity(val id: String)*/
-
-@KtorExperimentalLocationsAPI
-@Location("/error")
-class Error
 
 //https://github.com/ktorio/ktor-samples/tree/master/app/youkube
 @ObsoleteCoroutinesApi

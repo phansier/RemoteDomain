@@ -7,6 +7,7 @@ import io.ktor.client.request.post
 import ru.beryukhov.common.model.CompletableResult
 import ru.beryukhov.common.model.Entity
 import ru.beryukhov.common.model.Result
+import ru.beryukhov.common.model.Success
 
 
 interface ClientApi<Entity>{
@@ -25,7 +26,7 @@ class ClientApiImpl(
 ) : BaseHttpClient(), ClientApi<Entity> {
     override suspend fun create(entity: Entity, endpoint: String): Result<Entity> =
         httpClient.makeRequest("post(\"$serverUrl/$endpoint\")", log) {
-            post<Result.Success<Entity>>("$serverUrl/$endpoint") {
+            post<Success<Entity>>("$serverUrl/$endpoint") {
                 body = entity
                 headers.append(HEADER_CONTENT_TYPE, HEADER_JSON)
             }
@@ -33,7 +34,7 @@ class ClientApiImpl(
 
     override suspend fun get(endpoint: String): Result<List<Entity>> =
         httpClient.makeRequest("get(\"$serverUrl/$endpoint\")", log) {
-            get<Result.Success<List<Entity>>>("$serverUrl/$endpoint")
+            get<Success<List<Entity>>>("$serverUrl/$endpoint")
         }
 
     override suspend fun update(entity: Entity, endpoint: String): Result<Entity> {

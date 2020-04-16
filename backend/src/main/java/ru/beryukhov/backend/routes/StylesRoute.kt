@@ -1,4 +1,4 @@
-package ru.beryukhov.backend
+package ru.beryukhov.backend.routes
 
 import io.ktor.application.*
 import io.ktor.http.content.*

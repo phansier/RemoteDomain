@@ -1,4 +1,4 @@
-package ru.beryukhov.backend
+package ru.beryukhov.backend.routes
 
 import com.google.gson.GsonBuilder
 import io.ktor.application.call
@@ -10,7 +10,9 @@ import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import ru.beryukhov.backend.BackendRepository
 import ru.beryukhov.common.model.CompletableResult
+import ru.beryukhov.common.model.CompletableSuccess
 import ru.beryukhov.common.model.Entity
 import ru.beryukhov.common.model.Success
 
@@ -18,6 +20,10 @@ import ru.beryukhov.common.model.Success
 /**
  * Created by Andrey Beryukhov
  */
+
+@KtorExperimentalLocationsAPI
+@Location("/entity")
+class Entities
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalLocationsAPI
@@ -59,7 +65,7 @@ fun Route.entities(
         val entity = call.receive<Entity>()
         val result = backendRepository.delete(entity)
         call.respond(
-            status = if (result is CompletableResult.Success) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions
+            status = if (result is CompletableSuccess) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions
             message = TextContent(
                 gson.toJson(result),
                 ContentType.Application.Json

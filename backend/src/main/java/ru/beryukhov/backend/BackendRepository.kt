@@ -4,7 +4,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BroadcastChannel
 import ru.beryukhov.common.*
 import ru.beryukhov.common.model.*
-import ru.beryukhov.common.model.Error
 
 /**
  * Created by Andrey Beryukhov
@@ -13,15 +12,14 @@ import ru.beryukhov.common.model.Error
 @ExperimentalCoroutinesApi
 class BackendRepository(
     private val entityRepository: EntityRepository
-) : Backend,
-    EntityApi by entityRepository
+) : EntityApi by entityRepository
 
-data class User(val id: String, val userName: String) {
+data class TestUser(val id: String, val userName: String) {
     val entity get() = Pair(id, Entity(leaf = userName))
     constructor(id:String,entity: Entity) : this(id, entity.leaf?:"")
 }
 
-data class Post(val id: String, val userId: String, val message: String) {
+data class TestPost(val id: String, val userId: String, val message: String) {
     companion object{
         private const val USER_ID = "UserId"
         private const val MESSAGE = "Message"
@@ -43,12 +41,13 @@ data class Post(val id: String, val userId: String, val message: String) {
 }
 
 @ExperimentalCoroutinesApi
-class EntityRepository(private val broadcastChannel: BroadcastChannel<ApiRequest>) : EntityApi {
+class EntityRepository(private val broadcastChannel: BroadcastChannel<ApiRequest>) :
+    EntityApi {
     @Volatile
     private var nextUserId: Int = 0
 
-    private val testUser = User("0", "TestaTestovna")
-    private val testPost = Post("0", "0", "Coronavirus")
+    private val testUser = TestUser("0", "TestaTestovna")
+    private val testPost = TestPost("0", "0", "Coronavirus")
 
     private val entities = mutableListOf<Entity>(
         Entity(
@@ -96,9 +95,9 @@ class EntityRepository(private val broadcastChannel: BroadcastChannel<ApiRequest
     override suspend fun delete(entity: Entity): CompletableResult {
         return if (entities.remove(entity)) {
             broadcastChannel.offer(ApiRequest(method = Delete, entity = Entity::class))
-            CompletableResult.Success
-        } else CompletableResult.Failure(
-            Error.NoSuchElementError("todo")
+            CompletableSuccess
+        } else CompletableFailure(
+            NoSuchElementError("todo")
         )
     }
 

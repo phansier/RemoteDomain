@@ -2,9 +2,7 @@ package ru.beryukhov.client_lib.http
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.ResponseException
-import ru.beryukhov.common.model.CompletableResult
-import ru.beryukhov.common.model.Error
-import ru.beryukhov.common.model.Result
+import ru.beryukhov.common.model.*
 
 open class BaseHttpClient {
     companion object {
@@ -15,7 +13,7 @@ open class BaseHttpClient {
     suspend inline fun <T> HttpClient.makeRequest(
         logMessage: String,
         log: suspend (String) -> Unit,
-        block: HttpClient.() -> Result.Success<T>
+        block: HttpClient.() -> Success<T>
     ): Result<T> {
         log("\nSending request: $logMessage")
         try {
@@ -30,8 +28,8 @@ open class BaseHttpClient {
             log(
                 "Received error response: status = ${e.response.status}"
             )
-            return Result.Failure(
-                Error.HttpError(
+            return Failure(
+                HttpError(
                     e.response.status.value
                 )
             )
@@ -54,8 +52,8 @@ open class BaseHttpClient {
             log(
                 "Received error response: status = ${e.response.status}"
             )
-            return CompletableResult.Failure(
-                Error.HttpError(e.response.status.value)
+            return CompletableFailure(
+                HttpError(e.response.status.value)
             )
         }
     }

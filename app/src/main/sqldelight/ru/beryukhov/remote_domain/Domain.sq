@@ -1,0 +1,25 @@
+createDbEntityTable:
+CREATE TABLE IF NOT EXISTS DbEntity  (
+  id INTEGER NOT NULL PRIMARY KEY,
+  json TEXT
+);
+
+deleteDbEntityTable:
+DROP TABLE IF EXISTS DbEntity;
+
+insertDbEntity:
+INSERT OR REPLACE INTO DbEntity(id, json)
+VALUES (NULL,?);
+
+deleteDbEntity:
+DELETE
+FROM DbEntity
+WHERE id = ?;
+
+selectAll:
+SELECT *
+FROM DbEntity;
+
+lastInsertId:
+SELECT last_insert_rowid();
+

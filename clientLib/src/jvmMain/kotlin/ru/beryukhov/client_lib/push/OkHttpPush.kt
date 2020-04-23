@@ -1,4 +1,4 @@
-package ru.beryukhov.remote_domain.push
+package ru.beryukhov.client_lib.push
 
 import okhttp3.OkHttpClient
 import okhttp3.Request

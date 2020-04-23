@@ -1,4 +1,4 @@
-package ru.beryukhov.remote_domain.push
+package ru.beryukhov.client_lib.push
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

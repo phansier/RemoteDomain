@@ -15,6 +15,7 @@ kotlin {
 
             implementation "io.ktor:ktor-client-core:$ktor_version"
             implementation "io.ktor:ktor-client-json:$ktor_version"
+            implementation "io.ktor:ktor-client-websockets:$ktor_version"
         }
 
         commonTest.dependencies {
@@ -33,6 +34,8 @@ kotlin {
             implementation "io.ktor:ktor-client-json-jvm:$ktor_version"
             implementation "io.ktor:ktor-client-okhttp:$ktor_version"
             implementation "io.ktor:ktor-client-gson:$ktor_version"
+            implementation "io.ktor:ktor-client-websockets-jvm:$ktor_version"
+            //implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 
             //android specific
             implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"

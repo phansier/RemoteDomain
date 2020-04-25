@@ -1,10 +1,32 @@
 plugins {
     id("kotlin-multiplatform")
+    id("com.android.library")
+    id("com.squareup.sqldelight")
+}
+
+android {
+    compileSdkVersion 29
+
+    defaultConfig {
+        minSdkVersion 21
+    }
+    compileOptions {
+        targetCompatibility = "8"
+        sourceCompatibility = "8"
+    }
+}
+
+sqldelight {
+    QueryWrapper {
+        packageName = "ru.beryukhov.client_lib"
+    }
 }
 
 kotlin {
 
-    jvm() //android
+    targets {
+        targetFromPreset(presets.android, 'android')
+    }
 
     sourceSets {
         commonMain.dependencies {
@@ -16,6 +38,9 @@ kotlin {
             implementation "io.ktor:ktor-client-core:$ktor_version"
             implementation "io.ktor:ktor-client-json:$ktor_version"
             implementation "io.ktor:ktor-client-websockets:$ktor_version"
+
+            implementation "com.squareup.sqldelight:sqlite-driver:$sqldelight_version"
+            implementation "com.squareup.sqldelight:coroutines-extensions:$sqldelight_version"
         }
 
         commonTest.dependencies {
@@ -25,7 +50,7 @@ kotlin {
             implementation "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlin_version"
         }
 
-        jvmMain.dependencies {
+        androidMain.dependencies {
             api project(':common')
 
             implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -37,11 +62,14 @@ kotlin {
             implementation "io.ktor:ktor-client-websockets-jvm:$ktor_version"
             //implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 
+            implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
+            implementation "com.squareup.sqldelight:coroutines-extensions-jvm:$sqldelight_version"
+
             //android specific
             implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
         }
 
-        jvmTest.dependencies {
+        androidTest.dependencies {
             api project(':common')
 
             implementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"

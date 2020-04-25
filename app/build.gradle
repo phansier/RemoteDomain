@@ -2,8 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
-apply plugin: 'com.squareup.sqldelight'
-
 android {
     compileSdkVersion 29
 
@@ -68,9 +66,6 @@ dependencies {
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
-
-    implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
-    implementation "com.squareup.sqldelight:coroutines-extensions-jvm:$sqldelight_version"
 
     //implementation 'com.google.android.material:material:1.1.0'
 

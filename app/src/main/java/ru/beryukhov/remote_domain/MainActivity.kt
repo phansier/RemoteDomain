@@ -16,13 +16,13 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import ru.beryukhov.client_lib.db.Dao
-import ru.beryukhov.client_lib.db.DatabaseImpl
+import ru.beryukhov.client_lib.db.DaoStorageImpl
 import ru.beryukhov.common.model.Result
 import ru.beryukhov.common.model.Entity
 import ru.beryukhov.client_lib.http.HttpClientRepositoryImpl
 import ru.beryukhov.client_lib.push.OkHttpPush
 import ru.beryukhov.common.model.Success
-import ru.beryukhov.remote_domain.db.EntityDao
+import ru.beryukhov.client_lib.db.EntityDao
 import ru.beryukhov.remote_domain.domain.User
 import ru.beryukhov.remote_domain.recycler.DomainListAdapter
 import ru.beryukhov.remote_domain.recycler.UserItem
@@ -32,14 +32,14 @@ import ru.beryukhov.remote_domain.recycler.UserItem
 @ExperimentalCoroutinesApi
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var dbRepo: DatabaseImpl
+    private lateinit var dbRepo: DaoStorageImpl
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         //setupNetworkButton()
         //setupDatabaseButton()
-        dbRepo = DatabaseImpl().apply{addDao(Entity::class,
+        dbRepo = DaoStorageImpl().apply{addDao(Entity::class,
             EntityDao(this@MainActivity, ::log)
         )}
         setupSocketButton()

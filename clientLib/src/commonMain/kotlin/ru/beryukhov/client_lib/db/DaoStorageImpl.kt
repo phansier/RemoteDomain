@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
  * Created by Andrey Beryukhov
  */
 
-class DatabaseImpl(): Database {
+class DaoStorageImpl(): DaoStorage {
     private val daos = mutableMapOf<KClass<out Entity>, Dao<out Entity>>()
 
     override fun addDao(entity: KClass<out Entity>, dao: Dao<out Entity>) {

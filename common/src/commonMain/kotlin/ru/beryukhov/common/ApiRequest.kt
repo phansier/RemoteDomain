@@ -2,8 +2,13 @@ package ru.beryukhov.common
 
 import kotlin.reflect.KClass
 
-data class ApiRequest(val method: ApiMethod, val entity: KClass<out Any>) {
-    val json: String get() = "{\"method\":\"${method::class.simpleName}\",\"entity\":\"${entity.simpleName}\"}"
+data class ApiRequest(val method: String, val entity: String) {
+    constructor(method: ApiMethod, entity: KClass<out Any>) : this(
+        method::class.simpleName ?: "",
+        entity.simpleName ?: ""
+    )
+
+    val json: String get() = "{\"method\":\"${method}\",\"entity\":\"${entity}\"}"
 }
 
 interface ApiMethod

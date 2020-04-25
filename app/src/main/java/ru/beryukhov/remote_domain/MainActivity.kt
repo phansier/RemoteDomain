@@ -20,6 +20,7 @@ import ru.beryukhov.client_lib.db.DaoStorageImpl
 import ru.beryukhov.client_lib.db.EntityDao
 import ru.beryukhov.client_lib.http.HttpClientRepositoryImpl
 import ru.beryukhov.client_lib.push.OkHttpPush
+import ru.beryukhov.common.ApiRequest
 import ru.beryukhov.common.model.Entity
 import ru.beryukhov.common.model.Success
 import ru.beryukhov.remote_domain.domain.User
@@ -125,8 +126,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 }
-
-data class ApiRequest(val method: String, val entity: String)
 
 fun Entity.users(): List<User>? {
     return this.data?.get("User")?.data?.entries?.map { it -> User(it.key, it.value) }

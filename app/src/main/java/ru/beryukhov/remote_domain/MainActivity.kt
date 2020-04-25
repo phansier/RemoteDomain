@@ -17,12 +17,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import ru.beryukhov.client_lib.db.Dao
 import ru.beryukhov.client_lib.db.DaoStorageImpl
-import ru.beryukhov.common.model.Result
-import ru.beryukhov.common.model.Entity
+import ru.beryukhov.client_lib.db.EntityDao
 import ru.beryukhov.client_lib.http.HttpClientRepositoryImpl
 import ru.beryukhov.client_lib.push.OkHttpPush
+import ru.beryukhov.common.model.Entity
 import ru.beryukhov.common.model.Success
-import ru.beryukhov.client_lib.db.EntityDao
 import ru.beryukhov.remote_domain.domain.User
 import ru.beryukhov.remote_domain.recycler.DomainListAdapter
 import ru.beryukhov.remote_domain.recycler.UserItem
@@ -39,26 +38,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         //setupNetworkButton()
         //setupDatabaseButton()
-        dbRepo = DaoStorageImpl().apply{addDao(Entity::class,
-            EntityDao(this@MainActivity, ::log)
-        )}
+        dbRepo = DaoStorageImpl().apply {
+            addDao(
+                Entity::class,
+                EntityDao(this@MainActivity)
+            )
+        }
         setupSocketButton()
         setupCreateDbButton()
     }
-
-    /*private fun setupNetworkButton() {
-        val button: Button = findViewById(R.id.button_http)
-        button.setOnClickListener {
-            testHttp(::log)
-        }
-    }*/
-
-    /*private fun setupDatabaseButton() {
-        val button: Button = findViewById(R.id.button_db)
-        button.setOnClickListener {
-            testDb(this, ::log)
-        }
-    }*/
 
     @SuppressLint("DefaultLocale")
     private fun setupSocketButton() {
@@ -68,10 +56,10 @@ class MainActivity : AppCompatActivity() {
         val push = OkHttpPush()
         val gson = Gson()
         button.setOnClickListener {
-            push.startReceive(socketUrl = SOCKET_URL, log = ::log) {
+            push.startReceive(socketUrl = SOCKET_URL) {
                 try {
-                    //{"method":"Create","entity":"Post"}
-                    val apiRequest = gson.fromJson<ApiRequest>(it.toString(), ApiRequest::class.java)
+                    val apiRequest =
+                        gson.fromJson<ApiRequest>(it.toString(), ApiRequest::class.java)
                     when (apiRequest.entity) {
                         "Entity" -> broadcastChannel.offer(Entity())
                     }
@@ -83,17 +71,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val httpClientRepository = HttpClientRepositoryImpl(SERVER_URL, BuildConfig.DEBUG,::log)
+        val httpClientRepository = HttpClientRepositoryImpl(SERVER_URL, BuildConfig.DEBUG)
         val entityDao = dbRepo.getDao(Entity::class) as Dao<Entity>
 
         GlobalScope.launch {
             broadcastChannel.consumeEach {
-                log("event got $it")
+                Log.d("MainActivity", "event got $it")
                 when (it) {
                     is Entity -> {
-                        val result = httpClientRepository.clientApi.get("entity") as Result<List<Entity>>
-                        if (result is Success){
-                            //todo check insert instead of update
+                        val result = httpClientRepository.clientApi.get("entity")
+                        if (result is Success) {
+                            //todo update diff instead of insert
                             result.value.forEach {
                                 entityDao.insert(it)
                             }
@@ -109,14 +97,13 @@ class MainActivity : AppCompatActivity() {
         val adapter = setupRecycler()
 
 
-
         val entityDao = dbRepo.getDao(Entity::class) as Dao<Entity>
 
         button.setOnClickListener {
             entityDao.createTable()
-            entityDao.getEntitiesFlow().onEach {//todo replace by single entity
-                Log.d("DR_", "onEach")
-                log(it.toString())
+            entityDao.getEntitiesFlow().onEach {
+                //todo replace by single entity
+                Log.d("MainActivity", "onEach: [$it]")
 
                 withContext(Dispatchers.Main) {
                     adapter.clearAll()
@@ -126,20 +113,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }.launchIn(CoroutineScope(Dispatchers.Default))
 
-
-            //todo remove
-            /*GlobalScope.launch {
-                for (i in 1..8) {
-                    Log.d("DR_", "emit $i")
-                    delay(2000)
-                    dbRepo.insertUser(
-                        ru.beryukhov.remote_domain.User.Impl(
-                            "user_id_$i",
-                            "user_name_$i"
-                        )
-                    )
-                }
-            }*/
         }
     }
 
@@ -151,19 +124,10 @@ class MainActivity : AppCompatActivity() {
         return adapter
     }
 
-
-    private suspend fun log(s: String) {
-        Log.i("MainActivity", s)
-        /*withContext(Dispatchers.Main) {
-            val textView: TextView = findViewById(R.id.textView)
-            textView.text = "${textView.text}\n$s"
-        }*/
-    }
-
 }
 
 data class ApiRequest(val method: String, val entity: String)
 
 fun Entity.users(): List<User>? {
-    return this.data?.get("User")?.data?.entries?.map { it->User(it.key,it.value) }
+    return this.data?.get("User")?.data?.entries?.map { it -> User(it.key, it.value) }
 }

@@ -13,6 +13,7 @@ import ru.beryukhov.common.model.Entity
 import ru.beryukhov.client_lib.DbEntity
 import ru.beryukhov.client_lib.DomainQueries
 import ru.beryukhov.client_lib.QueryWrapper
+import ru.beryukhov.client_lib.log
 import kotlin.coroutines.CoroutineContext
 
 expect class EntityDao : Dao<Entity>
@@ -21,25 +22,24 @@ expect class EntityDao : Dao<Entity>
 @ExperimentalCoroutinesApi
 internal class EntityDaoImpl(
     sqlDriver: SqlDriver,
-    private val dbContext: CoroutineContext,
-    private val log: suspend (String) -> Unit
+    private val dbContext: CoroutineContext
 ) : Dao<Entity> {
     private val domainQueries: DomainQueries = QueryWrapper(sqlDriver).domainQueries
 
     override fun createTable() {
         CoroutineScope(dbContext).launch {
-            log("EntityDao:createDb() start")
+            log("EntityDao", "createDb() start")
             domainQueries.deleteDbEntityTable()
             domainQueries.createDbEntityTable()
-            log("EntityDao:createDb() created")
+            log("EntityDao", "createDb() created")
         }
     }
 
     override fun deleteTable() {
         CoroutineScope(dbContext).launch {
-            log("EntityDao:deleteDb() start")
+            log("EntityDao", "deleteDb() start")
             domainQueries.deleteDbEntityTable()
-            log("EntityDao:deleteDb() deleted")
+            log("EntityDao", "deleteDb() deleted")
         }
     }
 

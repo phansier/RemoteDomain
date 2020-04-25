@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
+import ru.beryukhov.client_lib.log
 
 expect fun createWebSocketHttpClient(): HttpClient
 expect fun DefaultClientWebSocketSession.configure(timeoutMillis: Long, pingMillis: Long)
@@ -24,13 +25,12 @@ class KtorPush : Push {
 
     override fun startReceive(
         socketUrl: String,
-        log: suspend (String) -> Unit,
         pushCallback: (Any) -> Unit
     ) {
         //main thread
         CoroutineScope(Dispatchers.Default)
             .launch {
-                log("Test Socket: ")
+                log("KtorPush", "Test Socket: ")
                 try {
                     val client = httpClient
 
@@ -44,7 +44,7 @@ class KtorPush : Push {
 
                         while (true) {
                             val value = incoming.receiveOrClosed()
-                            println("incoming $value from $this")
+                            log("KtorPush", "incoming $value from $this")
                             if (value.isClosed) {
                                 break
                             }
@@ -63,7 +63,7 @@ class KtorPush : Push {
 
                     client.close()
                 } catch (e: Throwable) {
-                    log("WS error: ${e.message}")
+                    log("KtorPush", "WS error: ${e.message}")
                 }
             }
     }

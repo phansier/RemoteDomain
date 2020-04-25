@@ -10,7 +10,7 @@ import ru.beryukhov.common.model.Result
 import ru.beryukhov.common.model.Success
 
 
-interface ClientApi<Entity>{
+interface ClientApi<Entity> {
 
     suspend fun create(entity: Entity, endpoint: String): Result<Entity>
     suspend fun get(endpoint: String): Result<List<Entity>>
@@ -21,11 +21,10 @@ interface ClientApi<Entity>{
 
 class ClientApiImpl(
     private val httpClient: HttpClient,
-    private val serverUrl: String,
-    private val log: suspend (String) -> Unit
+    private val serverUrl: String
 ) : BaseHttpClient(), ClientApi<Entity> {
     override suspend fun create(entity: Entity, endpoint: String): Result<Entity> =
-        httpClient.makeRequest("post(\"$serverUrl/$endpoint\")", log) {
+        httpClient.makeRequest("post(\"$serverUrl/$endpoint\")") {
             post<Success<Entity>>("$serverUrl/$endpoint") {
                 body = entity
                 headers.append(HEADER_CONTENT_TYPE, HEADER_JSON)
@@ -33,7 +32,7 @@ class ClientApiImpl(
         }
 
     override suspend fun get(endpoint: String): Result<List<Entity>> =
-        httpClient.makeRequest("get(\"$serverUrl/$endpoint\")", log) {
+        httpClient.makeRequest("get(\"$serverUrl/$endpoint\")") {
             get<Success<List<Entity>>>("$serverUrl/$endpoint")
         }
 
@@ -42,7 +41,7 @@ class ClientApiImpl(
     }
 
     override suspend fun delete(entity: Entity, endpoint: String): CompletableResult =
-        httpClient.makeCompletableRequest("delete(\"$serverUrl/$endpoint\")", log) {
+        httpClient.makeCompletableRequest("delete(\"$serverUrl/$endpoint\")") {
             delete("$serverUrl/$endpoint") {
                 body = entity
                 headers.append(HEADER_CONTENT_TYPE, HEADER_JSON)

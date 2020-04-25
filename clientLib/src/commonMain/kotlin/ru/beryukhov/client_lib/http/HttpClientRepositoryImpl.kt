@@ -6,7 +6,7 @@ import ru.beryukhov.common.model.Entity
 
 expect fun createHttpClient(logRequests: Boolean): HttpClient
 
-class HttpClientRepositoryImpl(private val serverUrl: String, logRequests: Boolean, private val log: suspend (String) -> Unit) :
+class HttpClientRepositoryImpl(private val serverUrl: String, logRequests: Boolean) :
     HttpClientRepository {
 
     private val httpClient: HttpClient by lazy { createHttpClient(logRequests) }
@@ -14,8 +14,7 @@ class HttpClientRepositoryImpl(private val serverUrl: String, logRequests: Boole
     override val clientApi: ClientApi<Entity> by lazy {
         ClientApiImpl(
             httpClient,
-            serverUrl,
-            log
+            serverUrl
         )
     }
 

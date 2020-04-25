@@ -1,5 +1,5 @@
 package ru.beryukhov.client_lib.push
 
 interface Push {
-    fun startReceive(socketUrl: String, log: suspend (String) -> Unit, pushCallback: (Any) -> Unit)
+    fun startReceive(socketUrl: String, pushCallback: (Any) -> Unit)
 }

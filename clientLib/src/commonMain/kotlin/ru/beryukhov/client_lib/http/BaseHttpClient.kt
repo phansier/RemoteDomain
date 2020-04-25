@@ -2,6 +2,7 @@ package ru.beryukhov.client_lib.http
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.ResponseException
+import ru.beryukhov.client_lib.log
 import ru.beryukhov.common.model.*
 
 open class BaseHttpClient {
@@ -10,24 +11,18 @@ open class BaseHttpClient {
         const val HEADER_JSON = "application/json"
     }
 
-    suspend inline fun <T> HttpClient.makeRequest(
+    inline fun <T> HttpClient.makeRequest(
         logMessage: String,
-        log: suspend (String) -> Unit,
         block: HttpClient.() -> Success<T>
     ): Result<T> {
-        log("\nSending request: $logMessage")
+        log("BaseHttpClient", "\nSending request: $logMessage")
         try {
-
             val result = block.invoke(this)
-            log(
-                "Received result: ${result.value}"
-            )
+            log("BaseHttpClient", "Received result: ${result.value}")
             return result
 
         } catch (e: ResponseException) {
-            log(
-                "Received error response: status = ${e.response.status}"
-            )
+            log("BaseHttpClient", "Received error response: status = ${e.response.status}")
             return Failure(
                 HttpError(
                     e.response.status.value
@@ -36,22 +31,17 @@ open class BaseHttpClient {
         }
     }
 
-    suspend inline fun HttpClient.makeCompletableRequest(
+    inline fun HttpClient.makeCompletableRequest(
         logMessage: String,
-        log: suspend (String) -> Unit,
         block: HttpClient.() -> CompletableResult
     ): CompletableResult {
-        log("\nSending request: $logMessage")
+        log("BaseHttpClient", "\nSending request: $logMessage")
         try {
             val result = block.invoke(this)
-            log(
-                "Received success result"
-            )
+            log("BaseHttpClient", "Received success result")
             return result
         } catch (e: ResponseException) {
-            log(
-                "Received error response: status = ${e.response.status}"
-            )
+            log("BaseHttpClient", "Received error response: status = ${e.response.status}")
             return CompletableFailure(
                 HttpError(e.response.status.value)
             )

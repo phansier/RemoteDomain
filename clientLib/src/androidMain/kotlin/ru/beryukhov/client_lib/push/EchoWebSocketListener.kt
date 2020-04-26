@@ -33,7 +33,7 @@ class EchoWebSocketListener(
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-        log("EchoWebSocketListener", "Error : $t + message: ${t.message}")
+        log("EchoWebSocketListener", "Error : $t + message: ${t.message} + response: ${response}")
     }
 
     companion object {

@@ -12,15 +12,14 @@ import ru.beryukhov.common.model.Entity
 
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
-actual class EntityDao constructor(context: Context) :
-    Dao<Entity> by EntityDaoImpl(
-        sqlDriver = AndroidSqliteDriver(
-            QueryWrapper.Schema,
-            context,
-            "test.db"
-        ),
-        dbContext = newSingleThreadContext("DB")
-    )
+actual class EntityDao constructor(context: Context) : Dao<Entity> by EntityDaoImpl(
+    sqlDriver = AndroidSqliteDriver(
+        QueryWrapper.Schema,
+        context,
+        "test.db"
+    ),
+    dbContext = newSingleThreadContext("DB")
+)
 
 private val gson by lazy { Gson() }
 

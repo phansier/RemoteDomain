@@ -2,8 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
-apply plugin: 'com.squareup.sqldelight'
-
 android {
     compileSdkVersion 29
 
@@ -36,6 +34,7 @@ android {
         exclude 'META-INF/ktor-utils.kotlin_module'
         exclude 'META-INF/ktor-io.kotlin_module'
         exclude 'META-INF/ktor-client-websockets.kotlin_module'
+        exclude 'META-INF/ktor-client-json.kotlin_module'
     }
 
     compileOptions {
@@ -49,7 +48,7 @@ android {
 }
 
 dependencies {
-    implementation project(':common')
+    implementation project(':clientLib')
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.2.0'
@@ -58,32 +57,17 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'com.google.android.material:material:1.1.0'
 
+    implementation 'com.google.code.gson:gson:2.8.6'
+
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 
-    implementation "io.ktor:ktor-client-gson:$ktor_version"
-    implementation "io.ktor:ktor-client-okhttp:$ktor_version"
-    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
-
-    implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
-    implementation "com.squareup.sqldelight:coroutines-extensions-jvm:$sqldelight_version"
-
     //implementation 'com.google.android.material:material:1.1.0'
-
-    implementation "io.ktor:ktor-client-websockets:$ktor_version"
-    implementation "io.ktor:ktor-client-websockets-jvm:$ktor_version"
-    //implementation "io.ktor:ktor-client-cio:$ktor_version"
-    //implementation "io.ktor:ktor-client-js:$ktor_version"
-    //implementation "io.ktor:ktor-client-okhttp:$ktor_version"
-
-    implementation "ch.qos.logback:logback-classic:$logback_version"
-
-
-    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 
 
 }

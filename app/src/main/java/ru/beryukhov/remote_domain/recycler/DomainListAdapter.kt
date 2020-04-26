@@ -5,11 +5,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.post_item.view.*
 import kotlinx.android.synthetic.main.user_item.view.*
-import ru.beryukhov.common.model.Post
-import ru.beryukhov.common.model.User
 import ru.beryukhov.remote_domain.baserecyclerview.SimpleListAdapter
 import ru.beryukhov.remote_domain.R
 import ru.beryukhov.remote_domain.baserecyclerview.IBaseListItem
+import ru.beryukhov.remote_domain.domain.Post
+import ru.beryukhov.remote_domain.domain.User
 
 
 /**

@@ -16,6 +16,7 @@
         app:layout_constraintTop_toTopOf="parent"
         style="@style/Widget.AppCompat.Button.Colored"
         android:backgroundTint="@color/colorPrimaryDark"
+        android:visibility="gone"
         android:layout_margin="4dp"/>
 
     <Button
@@ -27,6 +28,7 @@
         app:layout_constraintStart_toEndOf="@id/button_http"
         app:layout_constraintTop_toTopOf="parent"
         style="@style/Widget.AppCompat.Button.Colored"
+        android:visibility="gone"
         android:layout_margin="4dp"/>
 
     <Button
@@ -39,6 +41,7 @@
         app:layout_constraintTop_toTopOf="parent"
         style="@style/Widget.AppCompat.Button.Colored"
         android:backgroundTint="@color/colorPrimaryDark"
+        android:visibility="gone"
         android:layout_margin="4dp"/>
 
     <androidx.constraintlayout.widget.Barrier
@@ -66,6 +69,7 @@
         app:layout_constraintTop_toBottomOf="@id/divider"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_margin="4dp"
+        android:visibility="gone"
         />
 
     <Button
@@ -78,6 +82,7 @@
         app:layout_constraintTop_toBottomOf="@id/divider"
         style="@style/Widget.AppCompat.Button.Colored"
         android:backgroundTint="@color/colorPrimaryDark"
+        android:visibility="gone"
         android:layout_margin="4dp"/>
 
     <Button
@@ -89,6 +94,7 @@
         app:layout_constraintStart_toEndOf="@id/button_2"
         app:layout_constraintTop_toBottomOf="@id/divider"
         style="@style/Widget.AppCompat.Button.Colored"
+        android:visibility="gone"
         android:layout_margin="4dp"/>
 
     <androidx.constraintlayout.widget.Barrier

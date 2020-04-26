@@ -1,0 +1,79 @@
+plugins {
+    id("kotlin-multiplatform")
+    id("com.android.library")
+    id("com.squareup.sqldelight")
+}
+
+android {
+    compileSdkVersion 29
+
+    defaultConfig {
+        minSdkVersion 21
+    }
+    compileOptions {
+        targetCompatibility = "8"
+        sourceCompatibility = "8"
+    }
+}
+
+sqldelight {
+    QueryWrapper {
+        packageName = "ru.beryukhov.client_lib"
+    }
+}
+
+kotlin {
+
+    targets {
+        targetFromPreset(presets.android, 'android')
+    }
+
+    sourceSets {
+        commonMain.dependencies {
+            api project(':common')
+
+            implementation 'org.jetbrains.kotlin:kotlin-stdlib'
+            implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$coroutines_version"
+
+            implementation "io.ktor:ktor-client-core:$ktor_version"
+            implementation "io.ktor:ktor-client-json:$ktor_version"
+            implementation "io.ktor:ktor-client-websockets:$ktor_version"
+
+            implementation "com.squareup.sqldelight:sqlite-driver:$sqldelight_version"
+            implementation "com.squareup.sqldelight:coroutines-extensions:$sqldelight_version"
+        }
+
+        commonTest.dependencies {
+            api project(':common')
+
+            implementation "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
+            implementation "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlin_version"
+        }
+
+        androidMain.dependencies {
+            api project(':common')
+
+            implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+            implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+
+            implementation "io.ktor:ktor-client-json-jvm:$ktor_version"
+            implementation "io.ktor:ktor-client-okhttp:$ktor_version"
+            implementation "io.ktor:ktor-client-gson:$ktor_version"
+            implementation "io.ktor:ktor-client-websockets-jvm:$ktor_version"
+            //implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+
+            implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
+            implementation "com.squareup.sqldelight:coroutines-extensions-jvm:$sqldelight_version"
+
+            //android specific
+            implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
+        }
+
+        androidTest.dependencies {
+            api project(':common')
+
+            implementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+            implementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+        }
+    }
+}

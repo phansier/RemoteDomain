@@ -1,4 +1,5 @@
 include ':common'
+include ':clientLib'
 include ':backend'
 include ':app'
 rootProject.name = "Remote Domain"

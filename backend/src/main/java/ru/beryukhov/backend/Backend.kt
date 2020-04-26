@@ -10,7 +10,6 @@ import io.ktor.http.content.defaultResource
 import io.ktor.http.content.resources
 import io.ktor.http.content.static
 import io.ktor.locations.KtorExperimentalLocationsAPI
-import io.ktor.locations.Location
 import io.ktor.locations.Locations
 import io.ktor.routing.Routing
 import io.ktor.routing.routing
@@ -21,31 +20,10 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
+import ru.beryukhov.backend.routes.entities
+import ru.beryukhov.backend.routes.error
+import ru.beryukhov.backend.routes.styles
 import ru.beryukhov.common.ApiRequest
-
-/*@KtorExperimentalLocationsAPI
-@Location("/")
-class Index*/
-
-@KtorExperimentalLocationsAPI
-@Location("/post")
-class Posts
-
-@KtorExperimentalLocationsAPI
-@Location("/diff/post")
-class PostsDiff
-
-@KtorExperimentalLocationsAPI
-@Location("/post/{id}")
-data class Post(val id: String)
-
-@KtorExperimentalLocationsAPI
-@Location("/user")
-class Users
-
-@KtorExperimentalLocationsAPI
-@Location("/error")
-class Error
 
 //https://github.com/ktorio/ktor-samples/tree/master/app/youkube
 @ObsoleteCoroutinesApi
@@ -76,9 +54,7 @@ fun Application.main() {
     val channel = BroadcastChannel<ApiRequest>(Channel.CONFLATED)
 
     val backendRepository = BackendRepository(
-        postRepository = PostRepository(broadcastChannel = channel),
-        userRepository = UserRepository(broadcastChannel = channel)
-
+        entityRepository = EntityRepository(broadcastChannel = channel)
     )
 
     install(WebSockets)
@@ -90,9 +66,7 @@ fun Application.main() {
     // To allow better scaling for large applications,
     // we have moved those route registrations into several extension methods and files.
     routing {
-        posts(backendRepository)
-        postsDiff(backendRepository)
-        users(backendRepository)
+        entities(backendRepository)
 
         error()
 

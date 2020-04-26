@@ -21,6 +21,7 @@ import ru.beryukhov.common.diffutil.DiffUtil.calculateDiff
 import kotlin.random.Random
 import kotlin.test.*
 
+@Ignore
 class DiffUtilTest {
     private val mBefore: MutableList<Item> =
         ArrayList()

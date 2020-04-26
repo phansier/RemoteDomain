@@ -1,5 +1,6 @@
 package ru.beryukhov.backend
 
+import com.google.gson.GsonBuilder
 import io.ktor.application.Application
 import io.ktor.application.install
 import io.ktor.features.*
@@ -13,7 +14,6 @@ import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Locations
 import io.ktor.routing.Routing
 import io.ktor.routing.routing
-import io.ktor.util.KtorExperimentalAPI
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
 import kotlinx.coroutines.*
@@ -28,9 +28,7 @@ import ru.beryukhov.common.ApiRequest
 //https://github.com/ktorio/ktor-samples/tree/master/app/youkube
 @ObsoleteCoroutinesApi
 @InternalCoroutinesApi
-@FlowPreview
 @ExperimentalCoroutinesApi
-@KtorExperimentalAPI
 @KtorExperimentalLocationsAPI
 fun Application.main() {
     // This adds automatically Date and Server headers to each response, and would allow you to configure
@@ -48,7 +46,10 @@ fun Application.main() {
 
     install(ContentNegotiation) {
         //register(ContentType.Application.Json, SerializationConverter())
-        register(ContentType.Application.Json, GsonConverter())
+        register(
+            ContentType.Application.Json,
+            GsonConverter(GsonBuilder().serializeNulls().create())
+        )
     }
 
     val channel = BroadcastChannel<ApiRequest>(Channel.CONFLATED)

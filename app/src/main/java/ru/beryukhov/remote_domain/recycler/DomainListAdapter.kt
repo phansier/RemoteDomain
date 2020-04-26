@@ -2,9 +2,12 @@ package ru.beryukhov.remote_domain.recycler
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.post_item.view.*
 import kotlinx.android.synthetic.main.user_item.view.*
+import ru.beryukhov.remote_domain.MainFragmentDirections
 import ru.beryukhov.remote_domain.baserecyclerview.SimpleListAdapter
 import ru.beryukhov.remote_domain.R
 import ru.beryukhov.remote_domain.baserecyclerview.IBaseListItem
@@ -23,8 +26,25 @@ class DomainListAdapter : SimpleListAdapter() {
 
         return when (viewType) {
             R.layout.user_item -> UserViewHolder(inflateByViewType(context, viewType, parent))
-            R.layout.post_item -> PostViewHolder(inflateByViewType(context, viewType, parent))
+            R.layout.post_item -> {
+                val holder = PostViewHolder(inflateByViewType(context, viewType, parent))
+                holder.itemView.setOnClickListener {
+                    val position = holder.adapterPosition
+                    if (position != RecyclerView.NO_POSITION) {
+                        onItemClick(position, holder.itemView)
+                    }
+                }
+                return holder
+            }
             else -> throw IllegalStateException("There is no match with current layoutId")
+        }
+    }
+
+    fun onItemClick(adapterPosition: Int, view: View) {
+
+        val item = items[adapterPosition]
+        if (item is PostItem){
+            findNavController(view).navigate(MainFragmentDirections.actionMainToPost(post = item.post))
         }
     }
 
@@ -47,19 +67,19 @@ class DomainListAdapter : SimpleListAdapter() {
     }
 }
 
-data class PostItem(val post: Post, val user: User?):IBaseListItem{
+data class PostItem(val post: Post, val user: User?) : IBaseListItem {
     override fun getLayoutId() = R.layout.post_item
 }
 
-data class UserItem(val user: User): IBaseListItem{
+data class UserItem(val user: User) : IBaseListItem {
     override fun getLayoutId() = R.layout.user_item
 }
 
-class PostViewHolder(view: View) : RecyclerView.ViewHolder(view){
+class PostViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     val postMessage = view.postMessage
     val postTitle = view.postTitle
 }
 
-class UserViewHolder(view: View): RecyclerView.ViewHolder(view){
+class UserViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     val userName = view.userName
 }

@@ -7,7 +7,7 @@
     android:padding="24dp">
 
     <TextView
-        android:id="@+id/id"
+        android:id="@+id/user_id"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="start"
@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:hint="UserName"
 
-        app:layout_constraintTop_toBottomOf="@id/id">
+        app:layout_constraintTop_toBottomOf="@id/user_id">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"

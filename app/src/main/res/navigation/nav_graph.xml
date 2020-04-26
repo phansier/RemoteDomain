@@ -21,12 +21,19 @@
         android:id="@+id/userFragment"
         android:name="ru.beryukhov.remote_domain.UserFragment"
         android:label="User"
-        tools:layout="@layout/user_fragment" />
+        tools:layout="@layout/user_fragment" >
+    </fragment>
 
     <fragment
         android:id="@+id/postFragment"
         android:name="ru.beryukhov.remote_domain.PostFragment"
         android:label="Post"
-        tools:layout="@layout/post_fragment" />
+        tools:layout="@layout/post_fragment" >
+        <argument
+            android:name="post"
+            app:argType="ru.beryukhov.remote_domain.domain.Post"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
 
 </navigation>

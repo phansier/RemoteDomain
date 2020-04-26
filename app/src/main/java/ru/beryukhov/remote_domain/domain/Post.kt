@@ -1,8 +1,10 @@
 package ru.beryukhov.remote_domain.domain
 
 import ru.beryukhov.common.model.Entity
+import java.io.Serializable
 
-data class Post(val id: String, val userId: String, val message: String) {
+
+data class Post(val id: String, val userId: String, val message: String): Serializable {
     companion object {
         private const val USER_ID = "UserId"
         private const val MESSAGE = "Message"

@@ -8,12 +8,16 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.navArgs
 import kotlinx.android.synthetic.main.post_fragment.*
 import kotlinx.android.synthetic.main.user_fragment.*
 import kotlinx.android.synthetic.main.user_fragment.button
 import kotlinx.android.synthetic.main.user_fragment.textField
 
 class PostFragment : Fragment() {
+
+    private val args: PostFragmentArgs by navArgs()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -25,9 +29,16 @@ class PostFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val post = args.post
+        if (post!=null){
+            post_id.text = post.id
+            userTextField.editText?.setText(post.userId)
+            textField.editText?.setText(post.message)
+        }
         // Get input text
         //val inputText = textField.editText?.text.toString()
-        val items = listOf("Material", "Design", "Components", "Android")
+        val items = listOf("Material", "Design", "Components", "Android") //todo real users
         val adapter = ArrayAdapter(requireContext(), R.layout.list_item, items)
         (userTextField.editText as? AutoCompleteTextView)?.setAdapter(adapter)
 

@@ -7,15 +7,11 @@ interface Diff {
     fun get(a: Entity, b: Entity): Entity?
 
     //Entity+Entity(Diff) = Entity
-    fun apply(e: Entity, diff: Entity): Entity
+    fun apply(e: Entity, diff: Entity?): Entity
 }
 
 object DiffImpl : Diff {
     override fun get(a: Entity, b: Entity): Entity? {
-        return recGet(a, b)
-    }
-
-    private fun recGet(a: Entity, b: Entity): Entity? {
         if (a == b) return null //no changes
         if (a.data == b.data) return b.copy(data = null) //changes are in b.leaf
 
@@ -43,7 +39,7 @@ object DiffImpl : Diff {
             } else {
                 //key is the same
                 //changed value in b
-                val dataDiff = recGet(a.data[it]!!, b.data[it]!!)
+                val dataDiff = get(a.data[it]!!, b.data[it]!!)
                 if (dataDiff != null) {
                     diff.data?.put(it, dataDiff)
                 }
@@ -52,8 +48,26 @@ object DiffImpl : Diff {
         return diff.entity
     }
 
-    override fun apply(e: Entity, diff: Entity): Entity {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun apply(e: Entity, diff: Entity?): Entity {
+        if (diff == null) return e
+        val result = DiffEntity(
+            e.data?.toMutableMap(),
+            diff.leaf ?: e.leaf
+        )
+        if (diff.data == null) return result.entity
+        diff.data.keys.forEach {
+            if (diff.data[it] == null) {
+                //key was removed
+                result.data?.remove(it)
+            } else if (e.data?.containsKey(it) == true) {
+                //apply diff to existing value
+                result.data?.set(it, apply(e.data[it]!!, diff.data[it]))
+            } else {
+                //key was added
+                result.data?.set(it, diff.data[it])
+            }
+        }
+        return result.entity
     }
 }
 

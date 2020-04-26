@@ -48,6 +48,28 @@ class DiffTest {
         )
     )
 
+    private val a_add_comment = Entity(
+        mapOf(
+            a_users,
+            a_posts,
+            "Comment" to Entity(
+                mapOf(
+                    "0" to Entity(leaf = "SomeComment")
+                )
+            )
+        )
+    )
+
+    private val `a_add_comment-a` = Entity(
+        mapOf(
+            "Comment" to Entity(
+                mapOf(
+                    "0" to Entity(leaf = "SomeComment")
+                )
+            )
+        )
+    )
+
     private val a_users_change = "User" to Entity(
         mapOf(
             "0" to Entity(leaf = "TestTestov0"),
@@ -91,9 +113,15 @@ class DiffTest {
             )
         )
     )
+
     @Test
     fun testAddUser() {
         assertEquals(`a_add_user-a`, DiffImpl.get(a, a_add_user))
+    }
+
+    @Test
+    fun testAddNewEntity() {
+        assertEquals(`a_add_comment-a`, DiffImpl.get(a, a_add_comment))
     }
 
     @Test
@@ -104,6 +132,26 @@ class DiffTest {
     @Test
     fun testChangeUser() {
         assertEquals(`a_change_user-a`, DiffImpl.get(a, a_change_user))
+    }
+
+    @Test
+    fun testApplyAddUser() {
+        assertEquals(a_add_user, DiffImpl.apply(a, `a_add_user-a`))
+    }
+
+    @Test
+    fun testApplyAddNewEntity() {
+        assertEquals(a_add_comment, DiffImpl.apply(a, `a_add_comment-a`))
+    }
+
+    @Test
+    fun testApplyRemoveUser() {
+        assertEquals(a, DiffImpl.apply(a_add_user, `a-a_add_user`))
+    }
+
+    @Test
+    fun testApplyChangeUser() {
+        assertEquals(a_change_user, DiffImpl.apply(a, `a_change_user-a`))
     }
 
 }

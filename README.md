@@ -1,0 +1,1 @@
+![CI](https://github.com/AndreySBer/RemoteDomain/workflows/CI/badge.svg)

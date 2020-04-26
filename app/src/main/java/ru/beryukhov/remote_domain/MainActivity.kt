@@ -58,5 +58,5 @@ class MainActivity : AppCompatActivity() {
 }
 
 fun Entity.users(): List<User>? {
-    return this.data?.get("User")?.data?.entries?.map { it -> User(it.key, it.value) }
+    return this.data?.get("User")?.data?.entries?.map { it -> User(it.key, it.value!!) }
 }

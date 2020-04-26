@@ -33,6 +33,7 @@ class DomainListAdapter : SimpleListAdapter() {
         when (holder) {
             is PostViewHolder -> {
                 val postItem = items[position] as PostItem
+                holder.postTitle.text = "${postItem.user?.id} : ${postItem.user?.userName}"
                 holder.postMessage.text = "${postItem.post.id} : ${postItem.post.message}"
             }
             is UserViewHolder -> {
@@ -46,7 +47,7 @@ class DomainListAdapter : SimpleListAdapter() {
     }
 }
 
-data class PostItem(val post: Post):IBaseListItem{
+data class PostItem(val post: Post, val user: User?):IBaseListItem{
     override fun getLayoutId() = R.layout.post_item
 }
 
@@ -56,6 +57,7 @@ data class UserItem(val user: User): IBaseListItem{
 
 class PostViewHolder(view: View) : RecyclerView.ViewHolder(view){
     val postMessage = view.postMessage
+    val postTitle = view.postTitle
 }
 
 class UserViewHolder(view: View): RecyclerView.ViewHolder(view){

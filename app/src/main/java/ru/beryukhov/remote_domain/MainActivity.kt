@@ -4,7 +4,8 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -27,12 +28,30 @@ class MainActivity : AppCompatActivity() {
 
         adapter = setupRecycler()
 
+        setupButtons()
+
         val remoteDomainClient = RemoteDomainClient(application)
         remoteDomainClient.firstInit()
         remoteDomainClient.getEntitiesFlow().onEach(::updateEntityUI)
             .launchIn(CoroutineScope(Dispatchers.Default))
 
         remoteDomainClient.init(SERVER_URL, SOCKET_URL, BuildConfig.DEBUG)
+    }
+
+    private fun setupButtons() {
+        topAppBar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.addUser -> {
+                    Snackbar.make(recycler_view, "Add user", Snackbar.LENGTH_LONG).show()
+                    true
+                }
+
+                else -> false
+            }
+        }
+        fab.setOnClickListener {
+            Snackbar.make(recycler_view, "Add message", Snackbar.LENGTH_LONG).show()
+        }
     }
 
     //todo replace by single entity
@@ -48,10 +67,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupRecycler(): DomainListAdapter {
-        val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
         val adapter = DomainListAdapter()
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = adapter
+        recycler_view.layoutManager = LinearLayoutManager(this)
+        recycler_view.adapter = adapter
         return adapter
     }
 

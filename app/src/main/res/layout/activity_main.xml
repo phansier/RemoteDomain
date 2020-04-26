@@ -1,130 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/button_http"
-        android:layout_width="0dp"
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="HTTP requests"
-        app:layout_constraintEnd_toStartOf="@id/button_db"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:backgroundTint="@color/colorPrimaryDark"
-        android:visibility="gone"
-        android:layout_margin="4dp"/>
+        app:liftOnScroll="true">
 
-    <Button
-        android:id="@+id/button_db"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Database requests"
-        app:layout_constraintEnd_toStartOf="@id/button_socket"
-        app:layout_constraintStart_toEndOf="@id/button_http"
-        app:layout_constraintTop_toTopOf="parent"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:visibility="gone"
-        android:layout_margin="4dp"/>
-
-    <Button
-        android:id="@+id/button_socket"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Open socket"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/button_db"
-        app:layout_constraintTop_toTopOf="parent"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:backgroundTint="@color/colorPrimaryDark"
-        android:visibility="gone"
-        android:layout_margin="4dp"/>
-
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrier"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="button_http,button_db,button_socket" />
-    <View
-        android:id="@+id/divider"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/barrier"
-        android:background="@color/colorPrimary"
-        />
-    <Button
-        android:id="@+id/button_create_db"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Create DB"
-        app:layout_constraintEnd_toStartOf="@id/button_2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/divider"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_margin="4dp"
-        android:visibility="gone"
-        />
-
-    <Button
-        android:id="@+id/button_2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Delete DB"
-        app:layout_constraintEnd_toStartOf="@id/button_3"
-        app:layout_constraintStart_toEndOf="@id/button_create_db"
-        app:layout_constraintTop_toBottomOf="@id/divider"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:backgroundTint="@color/colorPrimaryDark"
-        android:visibility="gone"
-        android:layout_margin="4dp"/>
-
-    <Button
-        android:id="@+id/button_3"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Todo"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/button_2"
-        app:layout_constraintTop_toBottomOf="@id/divider"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:visibility="gone"
-        android:layout_margin="4dp"/>
-
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrier1"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="button_create_db,button_2,button_3" />
-    <View
-        android:id="@+id/divider1"
-        android:layout_width="wrap_content"
-        android:layout_height="1dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/barrier1"
-        android:background="@color/colorPrimary"
-        />
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            style="@style/Widget.MaterialComponents.Toolbar.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:menu="@menu/top_app_bar"
+            app:title="@string/app_name" />
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/divider1"
-        app:layout_constraintVertical_bias="0.0"
-        tools:itemCount="10"
+        android:layout_height="match_parent"
         android:layout_marginTop="16dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:itemCount="10"
         tools:listitem="@layout/user_item" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_gravity="bottom|end"
+        app:srcCompat="@drawable/ic_plus_24" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

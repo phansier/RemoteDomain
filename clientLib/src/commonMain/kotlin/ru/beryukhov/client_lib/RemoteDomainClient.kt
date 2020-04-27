@@ -57,11 +57,6 @@ internal class RemoteDomainClientImpl(entityDao: EntityDao) : RemoteDomainClient
     override fun init(SERVER_URL: String, SOCKET_URL: String, logRequests: Boolean) {
         //todo check double init
         val broadcastChannel = BroadcastChannel<Any>(Channel.CONFLATED)
-        push.startReceive(socketUrl = SOCKET_URL) {
-            //there is an ApiRequest in JSON for future optimizations with update method, etc.
-            broadcastChannel.offer(Unit)
-        }
-
         val httpClientRepository = HttpClientRepositoryImpl(SERVER_URL, logRequests)
         val entityDao = dbRepo.getDao(Entity::class) as Dao<Entity>
 
@@ -76,6 +71,11 @@ internal class RemoteDomainClientImpl(entityDao: EntityDao) : RemoteDomainClient
                     }
                 }
             }
+        }
+        broadcastChannel.offer(Unit)
+        push.startReceive(socketUrl = SOCKET_URL) {
+            //there is an ApiRequest in JSON for future optimizations with update method, etc.
+            broadcastChannel.offer(Unit)
         }
     }
 

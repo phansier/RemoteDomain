@@ -16,7 +16,6 @@ import ru.beryukhov.client_lib.http.HttpClientRepositoryImpl
 import ru.beryukhov.client_lib.push.push
 import ru.beryukhov.common.model.Entity
 import ru.beryukhov.common.model.Success
-import ru.beryukhov.common.tree_diff.DiffImpl
 
 interface RemoteDomainClientApi {
     /**
@@ -73,7 +72,7 @@ internal class RemoteDomainClientImpl(entityDao: EntityDao) : RemoteDomainClient
                 log("RemoteDomainClientImpl", "event got")
                 val result = clientApi.get("entity")
                 if (result is Success) {
-                    entityDao.update(result.value.last())
+                    entityDao.update(result.value)
                 }
             }
         }
@@ -88,7 +87,7 @@ internal class RemoteDomainClientImpl(entityDao: EntityDao) : RemoteDomainClient
 
     override fun pushChanges(diff: Entity) {
         GlobalScope.launch {
-            clientApi.create(DiffImpl.apply(entityDao.getEntity(), diff), "entity")
+            clientApi.create(diff, "entity")
         }
     }
 }

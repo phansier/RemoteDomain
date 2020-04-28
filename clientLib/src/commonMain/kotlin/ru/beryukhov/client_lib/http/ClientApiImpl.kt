@@ -23,8 +23,8 @@ class ClientApiImpl(
             }
         }
 
-    override suspend fun get(endpoint: String): Result<List<Entity>> =
+    override suspend fun get(endpoint: String): Result<Entity> =
         httpClient.makeRequest("get(\"$serverUrl/$endpoint\")") {
-            get<Success<List<Entity>>>("$serverUrl/$endpoint")
+            get<Success<Entity>>("$serverUrl/$endpoint")
         }
 }

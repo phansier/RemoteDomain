@@ -1,19 +1,17 @@
-package ru.beryukhov.remote_domain
+package ru.beryukhov.remote_domain.main
 
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.main_fragment.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import ru.beryukhov.client_lib.RemoteDomainClient
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.ObsoleteCoroutinesApi
+import moxy.MvpAppCompatFragment
+import moxy.ktx.moxyPresenter
 import ru.beryukhov.common.model.Entity
+import ru.beryukhov.remote_domain.R
 import ru.beryukhov.remote_domain.domain.Post
 import ru.beryukhov.remote_domain.domain.User
 import ru.beryukhov.remote_domain.recycler.DomainListAdapter
@@ -21,17 +19,14 @@ import ru.beryukhov.remote_domain.recycler.PostItem
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
-class MainFragment : Fragment() {
-    private lateinit var adapter: DomainListAdapter
+class MainFragment : MvpAppCompatFragment(R.layout.main_fragment),
+    MainView {
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.main_fragment, container, false)
-        return view
+    private val presenter by moxyPresenter {
+        MainPresenter(requireActivity().application)
     }
+
+    private lateinit var adapter: DomainListAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -39,13 +34,6 @@ class MainFragment : Fragment() {
         adapter = setupRecycler()
 
         setupButtons()
-
-        val remoteDomainClient = RemoteDomainClient(requireActivity().application)
-        remoteDomainClient.firstInit()
-        remoteDomainClient.getEntitiesFlow().onEach(::updateEntityUI)
-            .launchIn(CoroutineScope(Dispatchers.Default))
-
-        remoteDomainClient.init(SERVER_URL, SOCKET_URL, BuildConfig.DEBUG)
     }
 
     private fun setupButtons() {
@@ -65,16 +53,14 @@ class MainFragment : Fragment() {
     }
 
     //todo replace by single entity
-    private suspend fun updateEntityUI(entities: List<Entity>) {
+    override fun updateEntityUI(entities: List<Entity>) {
         Log.d("MainActivity", "onEach: [$entities]")
 
-        withContext(Dispatchers.Main) {
-            adapter.clearAll()
-            val users = entities.lastOrNull()?.users()
-            adapter.add(entities.lastOrNull()?.posts()
-                ?.map { item -> PostItem(item, users?.find { it.id == item.userId }) }
-            )
-        }
+        adapter.clearAll()
+        val users = entities.lastOrNull()?.users()
+        adapter.add(entities.lastOrNull()?.posts()
+            ?.map { item -> PostItem(item, users?.find { it.id == item.userId }) }
+        )
     }
 
     private fun setupRecycler(): DomainListAdapter {

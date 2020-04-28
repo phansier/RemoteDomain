@@ -3,16 +3,15 @@ package ru.beryukhov.remote_domain.recycler
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.Navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.post_item.view.*
 import kotlinx.android.synthetic.main.user_item.view.*
-import ru.beryukhov.remote_domain.MainFragmentDirections
 import ru.beryukhov.remote_domain.baserecyclerview.SimpleListAdapter
 import ru.beryukhov.remote_domain.R
 import ru.beryukhov.remote_domain.baserecyclerview.IBaseListItem
 import ru.beryukhov.remote_domain.domain.Post
 import ru.beryukhov.remote_domain.domain.User
+import ru.beryukhov.remote_domain.main.MainFragmentDirections
 
 
 /**

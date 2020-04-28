@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph.xml"
+    app:startDestination="@id/mainFragment">
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="ru.beryukhov.remote_domain.main.MainFragment"
+        android:label="Main"
+        tools:layout="@layout/main_fragment" >
+        <action
+            android:id="@+id/action_main_to_user"
+            app:destination="@id/userFragment" />
+        <action
+            android:id="@+id/action_main_to_post"
+            app:destination="@id/postFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/userFragment"
+        android:name="ru.beryukhov.remote_domain.UserFragment"
+        android:label="User"
+        tools:layout="@layout/user_fragment" >
+    </fragment>
+
+    <fragment
+        android:id="@+id/postFragment"
+        android:name="ru.beryukhov.remote_domain.PostFragment"
+        android:label="Post"
+        tools:layout="@layout/post_fragment" >
+        <argument
+            android:name="post"
+            app:argType="ru.beryukhov.remote_domain.domain.Post"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+
+</navigation>

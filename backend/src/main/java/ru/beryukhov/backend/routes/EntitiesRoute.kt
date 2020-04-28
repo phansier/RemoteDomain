@@ -11,8 +11,6 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.beryukhov.backend.BackendRepository
-import ru.beryukhov.common.model.CompletableResult
-import ru.beryukhov.common.model.CompletableSuccess
 import ru.beryukhov.common.model.Entity
 import ru.beryukhov.common.model.Success
 
@@ -32,11 +30,12 @@ fun Route.entities(
 ) {
     val gson = GsonBuilder()
         .setPrettyPrinting()
+        .serializeNulls()
         .create()
 
     post<Entities> {
         val entity = call.receive<Entity>()
-        val result = backendRepository.create(entity)
+        val result = backendRepository.post(entity)
         call.respond(
             status = if (result is Success) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions
             message = TextContent(
@@ -47,27 +46,11 @@ fun Route.entities(
     }
 
     get<Entities> {
-        val posts = backendRepository.get()
+        val entity = backendRepository.get()
         call.respond(
-            status = if (posts is Success) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions
+            status = if (entity is Success) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions
             message = TextContent(
-                gson.toJson(posts),
-                ContentType.Application.Json
-            )
-        )
-    }
-
-    put<Entities> {
-        TODO("not implemented")
-    }
-
-    delete<Entities> {
-        val entity = call.receive<Entity>()
-        val result = backendRepository.delete(entity)
-        call.respond(
-            status = if (result is CompletableSuccess) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions
-            message = TextContent(
-                gson.toJson(result),
+                gson.toJson(entity),
                 ContentType.Application.Json
             )
         )

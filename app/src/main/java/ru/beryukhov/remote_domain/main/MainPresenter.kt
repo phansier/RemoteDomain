@@ -12,18 +12,20 @@ import ru.beryukhov.common.model.Entity
 import ru.beryukhov.remote_domain.BuildConfig
 import ru.beryukhov.remote_domain.SERVER_URL
 import ru.beryukhov.remote_domain.SOCKET_URL
+import ru.beryukhov.remote_domain.TheApplication
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 class MainPresenter(private val applicationContext: Application) : MvpPresenter<MainView>() {
-    private lateinit var remoteDomainClient: RemoteDomainClient
+
+    private val remoteDomainClient: RemoteDomainClient by lazy {
+        (applicationContext as TheApplication).theInteractor.remoteDomainClient
+    }
+
 
     override fun onFirstViewAttach() {
         presenterScope.launch {
             // Coroutine that will be canceled when presenter is destroyed
-            remoteDomainClient =
-                RemoteDomainClient(applicationContext)
-            remoteDomainClient.firstInit()
             remoteDomainClient.getEntitiesFlow().onEach(::updateEntityUI)
                 .launchIn(CoroutineScope(Dispatchers.Default))
 
@@ -35,7 +37,7 @@ class MainPresenter(private val applicationContext: Application) : MvpPresenter<
         }
     }
 
-    private suspend fun updateEntityUI(entities: List<Entity>){
+    private suspend fun updateEntityUI(entities: List<Entity>) {
         Log.d("MainActivity", "onEach: [$entities]")
         withContext(Dispatchers.Main) {
             viewState.updateEntityUI(entities)

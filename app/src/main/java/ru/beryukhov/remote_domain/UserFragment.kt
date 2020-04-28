@@ -6,10 +6,26 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import kotlinx.android.synthetic.main.user_fragment.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.ObsoleteCoroutinesApi
+import ru.beryukhov.client_lib.RemoteDomainClient
+import ru.beryukhov.remote_domain.domain.User
 
-class UserFragment: Fragment() {
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+@ObsoleteCoroutinesApi
+@ExperimentalCoroutinesApi
+class UserFragment : Fragment() {
+
+    private val remoteDomainClient: RemoteDomainClient by lazy {
+        (requireActivity().application as TheApplication).theInteractor.remoteDomainClient
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val view = inflater.inflate(R.layout.user_fragment, container, false)
         return view
     }
@@ -20,7 +36,19 @@ class UserFragment: Fragment() {
         //val inputText = textField.editText?.text.toString()
 
         textField.editText?.doOnTextChanged { inputText, _, _, _ ->
-            button.visibility = View.VISIBLE
+            val text = textField.editText?.text.toString()
+            if (text.isNotEmpty()) {
+                button.visibility = View.VISIBLE
+                button.text = "Create"
+                button.setOnClickListener {
+                    remoteDomainClient.pushChanges(
+                        User("-1", text).createDiff//todo think about unique id
+                    )
+                    findNavController().popBackStack()
+                }
+            } else {
+                button.visibility = View.GONE
+            }
         }
     }
 }

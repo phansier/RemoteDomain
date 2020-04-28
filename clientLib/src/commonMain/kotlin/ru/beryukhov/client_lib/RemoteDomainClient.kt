@@ -11,10 +11,12 @@ import kotlinx.coroutines.launch
 import ru.beryukhov.client_lib.db.Dao
 import ru.beryukhov.client_lib.db.DaoStorageImpl
 import ru.beryukhov.client_lib.db.EntityDao
+import ru.beryukhov.client_lib.http.ClientApi
 import ru.beryukhov.client_lib.http.HttpClientRepositoryImpl
 import ru.beryukhov.client_lib.push.push
 import ru.beryukhov.common.model.Entity
 import ru.beryukhov.common.model.Success
+import ru.beryukhov.common.tree_diff.DiffImpl
 
 interface RemoteDomainClientApi {
     /**
@@ -33,6 +35,9 @@ interface RemoteDomainClientApi {
      * Todo change on single entity
      */
     fun getEntitiesFlow(): Flow<List<Entity>>
+
+    fun pushChanges(diff: Entity)
+
 }
 
 expect class RemoteDomainClient : RemoteDomainClientApi
@@ -40,6 +45,7 @@ expect class RemoteDomainClient : RemoteDomainClientApi
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 internal class RemoteDomainClientImpl(entityDao: EntityDao) : RemoteDomainClientApi {
+
     private val dbRepo: DaoStorageImpl by lazy {
         DaoStorageImpl().apply {
             addDao(
@@ -50,6 +56,8 @@ internal class RemoteDomainClientImpl(entityDao: EntityDao) : RemoteDomainClient
     }
     private val entityDao: Dao<Entity> by lazy { dbRepo.getDao(Entity::class) as Dao<Entity> }
 
+    private lateinit var clientApi: ClientApi<Entity>
+
     override fun firstInit() {
         entityDao.createTable()
     }
@@ -58,12 +66,13 @@ internal class RemoteDomainClientImpl(entityDao: EntityDao) : RemoteDomainClient
         //todo check double init
         val broadcastChannel = BroadcastChannel<Any>(Channel.CONFLATED)
         val httpClientRepository = HttpClientRepositoryImpl(SERVER_URL, logRequests)
+        clientApi = httpClientRepository.clientApi
         val entityDao = dbRepo.getDao(Entity::class) as Dao<Entity>
 
         GlobalScope.launch {
             broadcastChannel.consumeEach {
                 log("RemoteDomainClientImpl", "event got")
-                val result = httpClientRepository.clientApi.get("entity")
+                val result = clientApi.get("entity")
                 if (result is Success) {
                     //todo update diff instead of insert
                     result.value.forEach {
@@ -80,4 +89,10 @@ internal class RemoteDomainClientImpl(entityDao: EntityDao) : RemoteDomainClient
     }
 
     override fun getEntitiesFlow() = entityDao.getEntitiesFlow()
+
+    override fun pushChanges(diff: Entity) {
+        GlobalScope.launch {
+            clientApi.create(DiffImpl.apply(entityDao.getEntities().last(), diff),"entity")
+        }
+    }
 }

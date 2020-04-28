@@ -52,13 +52,10 @@ class MainFragment : MvpAppCompatFragment(R.layout.main_fragment),
         }
     }
 
-    //todo replace by single entity
-    override fun updateEntityUI(entities: List<Entity>) {
-        Log.d("MainActivity", "onEach: [$entities]")
-
+    override fun updateEntityUI(entity: Entity) {
         adapter.clearAll()
-        val users = entities.lastOrNull()?.users()
-        adapter.add(entities.lastOrNull()?.posts()
+        val users = entity.users()
+        adapter.add(entity.posts()
             ?.map { item -> PostItem(item, users?.find { it.id == item.userId }) }
         )
     }

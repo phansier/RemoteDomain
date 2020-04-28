@@ -6,5 +6,5 @@ import ru.beryukhov.common.model.Entity
 
 interface MainView : MvpView {
     @AddToEndSingle
-    fun updateEntityUI(entities: List<Entity>)
+    fun updateEntityUI(entity: Entity)
 }

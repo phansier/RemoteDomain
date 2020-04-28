@@ -32,9 +32,8 @@ interface RemoteDomainClientApi {
 
     /**
      * Returns stream of Entity changes
-     * Todo change on single entity
      */
-    fun getEntitiesFlow(): Flow<List<Entity>>
+    fun getEntityFlow(): Flow<Entity>
 
     fun pushChanges(diff: Entity)
 
@@ -74,10 +73,7 @@ internal class RemoteDomainClientImpl(entityDao: EntityDao) : RemoteDomainClient
                 log("RemoteDomainClientImpl", "event got")
                 val result = clientApi.get("entity")
                 if (result is Success) {
-                    //todo update diff instead of insert
-                    result.value.forEach {
-                        entityDao.insert(it)
-                    }
+                    entityDao.update(result.value.last())
                 }
             }
         }
@@ -88,11 +84,11 @@ internal class RemoteDomainClientImpl(entityDao: EntityDao) : RemoteDomainClient
         }
     }
 
-    override fun getEntitiesFlow() = entityDao.getEntitiesFlow()
+    override fun getEntityFlow() = entityDao.getEntityFlow()
 
     override fun pushChanges(diff: Entity) {
         GlobalScope.launch {
-            clientApi.create(DiffImpl.apply(entityDao.getEntities().last(), diff),"entity")
+            clientApi.create(DiffImpl.apply(entityDao.getEntity(), diff), "entity")
         }
     }
 }

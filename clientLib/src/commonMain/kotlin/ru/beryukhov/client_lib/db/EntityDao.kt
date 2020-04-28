@@ -3,6 +3,7 @@ package ru.beryukhov.client_lib.db
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
+import com.squareup.sqldelight.runtime.coroutines.mapToOne
 import com.squareup.sqldelight.runtime.coroutines.mapToOneOrNull
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
@@ -31,6 +32,7 @@ internal class EntityDaoImpl(
             log("EntityDao", "createDb() start")
             domainQueries.deleteDbEntityTable()
             domainQueries.createDbEntityTable()
+            domainQueries.insertDbEntity(Entity().toJson())
             log("EntityDao", "createDb() created")
         }
     }
@@ -43,35 +45,22 @@ internal class EntityDaoImpl(
         }
     }
 
-    override fun getEntitiesFlow(): Flow<List<Entity>> {
+    override fun getEntityFlow(): Flow<Entity> {
         return domainQueries.selectAll().asFlow()
-            .mapToList(dbContext)
+            .mapToOne(dbContext)
             .flowOn(dbContext)
             .conflate()
-            .map { list -> list.map { dbEntity -> dbEntity.toEntity() } }
+            .map { dbEntity -> dbEntity.toEntity() }
     }
 
-    override fun getEntityFlow(): Flow<Entity?> {
-        return domainQueries.selectAll().asFlow()
-            .mapToOneOrNull(dbContext)
-            .flowOn(dbContext)
-            .conflate()
-            .map { dbEntity -> dbEntity?.toEntity() }
+    override fun getEntity(): Entity {
+        return domainQueries.selectAll().executeAsOne().toEntity()
     }
 
-    override fun getEntities(): List<Entity> {
-        return domainQueries.selectAll().executeAsList().map { dbEntity -> dbEntity.toEntity() }
-    }
-
-    override fun getEntity(): Entity? {
-        return domainQueries.selectAll().executeAsOneOrNull()?.toEntity()
-    }
-
-    override fun delete(id: Long) = domainQueries.deleteDbEntity(id)
-
-    override fun insert(entity: Entity) {
+    override fun update(entity: Entity) {
         CoroutineScope(dbContext).launch {
-            domainQueries.insertDbEntity(entity.toJson())
+            val id = domainQueries.lastInsertId().executeAsOne()
+            domainQueries.updateDbEntity(id, entity.toJson())
         }
     }
 }

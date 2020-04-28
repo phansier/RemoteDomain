@@ -32,8 +32,6 @@ class UserFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Get input text
-        //val inputText = textField.editText?.text.toString()
 
         textField.editText?.doOnTextChanged { inputText, _, _, _ ->
             val text = textField.editText?.text.toString()

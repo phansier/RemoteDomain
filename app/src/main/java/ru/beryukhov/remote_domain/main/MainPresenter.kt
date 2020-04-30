@@ -26,7 +26,7 @@ class MainPresenter(private val applicationContext: Application) : MvpPresenter<
     override fun onFirstViewAttach() {
         presenterScope.launch {
             // Coroutine that will be canceled when presenter is destroyed
-            remoteDomainClient.getEntitiesFlow().onEach(::updateEntityUI)
+            remoteDomainClient.getEntityFlow().onEach(::updateEntityUI)
                 .launchIn(CoroutineScope(Dispatchers.Default))
 
             remoteDomainClient.init(
@@ -37,10 +37,10 @@ class MainPresenter(private val applicationContext: Application) : MvpPresenter<
         }
     }
 
-    private suspend fun updateEntityUI(entities: List<Entity>) {
-        Log.d("MainActivity", "onEach: [$entities]")
+    private suspend fun updateEntityUI(entity: Entity) {
+        Log.d("MainPresenter", "onEach: [$entity]")
         withContext(Dispatchers.Main) {
-            viewState.updateEntityUI(entities)
+            viewState.updateEntityUI(entity)
         }
     }
 }

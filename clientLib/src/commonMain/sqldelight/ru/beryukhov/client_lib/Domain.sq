@@ -11,6 +11,10 @@ insertDbEntity:
 INSERT OR REPLACE INTO DbEntity(id, json)
 VALUES (NULL,?);
 
+updateDbEntity:
+INSERT OR REPLACE INTO DbEntity(id, json)
+VALUES (?,?);
+
 deleteDbEntity:
 DELETE
 FROM DbEntity
@@ -22,4 +26,3 @@ FROM DbEntity;
 
 lastInsertId:
 SELECT last_insert_rowid();
-

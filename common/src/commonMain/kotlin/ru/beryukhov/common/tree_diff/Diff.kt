@@ -10,7 +10,7 @@ interface Diff {
     fun apply(e: Entity, diff: Entity?): Entity
 }
 
-object DiffImpl : Diff {
+internal object DiffImpl : Diff {
     override fun get(a: Entity, b: Entity): Entity? {
         if (a == b) return null //no changes
         if (a.data == b.data) return b.copy(data = null) //changes are in b.leaf

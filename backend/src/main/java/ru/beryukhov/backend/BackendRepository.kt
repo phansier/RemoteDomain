@@ -4,7 +4,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BroadcastChannel
 import ru.beryukhov.common.*
 import ru.beryukhov.common.model.*
-import ru.beryukhov.common.tree_diff.DiffImpl
+import ru.beryukhov.common.tree_diff.plus
 
 /**
  * Created by Andrey Beryukhov
@@ -76,7 +76,7 @@ class EntityRepository(private val broadcastChannel: BroadcastChannel<ApiRequest
 
 
     override suspend fun post(entity: Entity): Result<Entity> {
-        this.entity = DiffImpl.apply(this.entity, entity)
+        this.entity += entity
         broadcastChannel.offer(ApiRequest(method = Create, entity = Entity::class))
         return Success(this.entity)
     }

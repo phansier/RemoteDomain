@@ -13,8 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.beryukhov.reactivenetwork.internet.observing.error;
+package ru.beryukhov.reactivenetwork.internet.observing.error
 
-public interface ErrorHandler {
-  void handleError(final Exception exception, final String message);
+import android.util.Log
+import ru.beryukhov.reactivenetwork.ReactiveNetwork
+
+class DefaultErrorHandler :
+    ErrorHandler {
+    override fun handleError(
+        exception: Exception?,
+        message: String?
+    ) {
+        Log.e(ReactiveNetwork.LOG_TAG, message, exception)
+    }
 }

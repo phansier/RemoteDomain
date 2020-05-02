@@ -47,12 +47,12 @@ import ru.beryukhov.reactivenetwork.network.observing.NetworkObservingStrategy
 class MarshmallowNetworkObservingStrategy : NetworkObservingStrategy {
     // it has to be initialized in the Observable due to Context
     private var networkCallback: NetworkCallback? = null
-    private val connectivitySubject: /*Subject<Connectivity?>?*/ BroadcastChannel<Connectivity?>
+    private val connectivitySubject: /*Subject<Connectivity?>?*/ BroadcastChannel<Connectivity>
     private val idleReceiver: BroadcastReceiver?
     private var lastConnectivity = Connectivity.create()
-    override fun observeNetworkConnectivity(context: Context?): Flow<Connectivity?>? {
+    override fun observeNetworkConnectivity(context: Context): Flow<Connectivity> {
         val service = Context.CONNECTIVITY_SERVICE
-        val manager = context!!.getSystemService(service) as ConnectivityManager
+        val manager = context.getSystemService(service) as ConnectivityManager
         networkCallback = createNetworkCallback(context)
         registerIdleReceiver(context)
         val request =
@@ -61,25 +61,27 @@ class MarshmallowNetworkObservingStrategy : NetworkObservingStrategy {
                 .build()
         manager.registerNetworkCallback(request, networkCallback)
         return callbackFlow {
-                connectivitySubject.consumeEach { offer(it)
-                    lastConnectivity = it
-                }
-                awaitClose {
-                    tryToUnregisterCallback(manager)
-                    tryToUnregisterReceiver(context)
-                }
-            }.flatMapConcat { connectivity ->
-                val typeChanged = lastConnectivity!!.type() != connectivity!!.type()
-                val wasConnected = lastConnectivity.state() == NetworkInfo.State.CONNECTED
-                val isDisconnected = connectivity.state() == NetworkInfo.State.DISCONNECTED
-                val isNotIdle = connectivity.detailedState() != NetworkInfo.DetailedState.IDLE
-                    if (typeChanged && wasConnected && isDisconnected && isNotIdle) {
-                        flowOf(connectivity, lastConnectivity)
-                } else {
-                        flowOf(connectivity)
-                }
+            connectivitySubject.consumeEach {
+                offer(it)
+                print("offer")
+                lastConnectivity = it
+            }
+            awaitClose {
+                tryToUnregisterCallback(manager)
+                tryToUnregisterReceiver(context)
+            }
+        }.flatMapConcat { connectivity ->
+            val typeChanged = lastConnectivity.type() != connectivity.type()
+            val wasConnected = lastConnectivity.state() == NetworkInfo.State.CONNECTED
+            val isDisconnected = connectivity.state() == NetworkInfo.State.DISCONNECTED
+            val isNotIdle = connectivity.detailedState() != NetworkInfo.DetailedState.IDLE
+            if (typeChanged && wasConnected && isDisconnected && isNotIdle) {
+                flowOf(connectivity, lastConnectivity)
+            } else {
+                flowOf(connectivity)
+            }
 
-            }.onStart { emit(Connectivity.create(context)) }.distinctUntilChanged()
+        }.onStart { emit(Connectivity.create(context)) }.distinctUntilChanged()
 
             /*.toFlowable(BackpressureStrategy.LATEST)
             .doOnCancel(object : Action() {
@@ -158,8 +160,8 @@ class MarshmallowNetworkObservingStrategy : NetworkObservingStrategy {
     }
 
     override fun onError(
-        message: String?,
-        exception: Exception?
+        message: String,
+        exception: Exception
     ) {
         Log.e(ReactiveNetwork.LOG_TAG, message, exception)
     }
@@ -176,14 +178,14 @@ class MarshmallowNetworkObservingStrategy : NetworkObservingStrategy {
         }
     }
 
-    protected fun onNext(connectivity: Connectivity?) {
+    protected fun onNext(connectivity: Connectivity) {
         connectivitySubject.offer(connectivity)
     }
 
     companion object {
-        protected val ERROR_MSG_NETWORK_CALLBACK: String? =
+        protected val ERROR_MSG_NETWORK_CALLBACK: String =
             "could not unregister network callback"
-        protected val ERROR_MSG_RECEIVER: String? = "could not unregister receiver"
+        protected val ERROR_MSG_RECEIVER: String = "could not unregister receiver"
     }
 
     init {

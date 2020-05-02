@@ -40,6 +40,8 @@ interface RemoteDomainClientApi {
 
     fun pushChanges(diff: Entity)
 
+    fun getNewId(): String
+
 }
 
 expect class RemoteDomainClient : RemoteDomainClientApi
@@ -110,11 +112,15 @@ internal class RemoteDomainClientImpl(
             } catch (e: Throwable) {
                 log("RemoteDomainClientImpl", "pushChanges HTTP error: ${e.message}")
                 log("RemoteDomainClientImpl", "pushChanges diff: $diff")
-                val update = diffDao.getEntity() + diff
+                val update = getEntity() + diff
                 log("RemoteDomainClientImpl", "pushChanges update: $update")
                 diffDao.update(update)
             }
         }
+    }
+
+    override fun getNewId(): String {
+        return libState.getClientId()+"_"+libState.getAndIncrementId()
     }
 }
 

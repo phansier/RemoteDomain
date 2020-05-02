@@ -40,7 +40,7 @@ class UserFragment : Fragment() {
                 button.text = "Create"
                 button.setOnClickListener {
                     remoteDomainClient.pushChanges(
-                        User("-1", text).createDiff//todo think about unique id
+                        User(id = remoteDomainClient.getNewId(), userName = text).createDiff
                     )
                     findNavController().popBackStack()
                 }

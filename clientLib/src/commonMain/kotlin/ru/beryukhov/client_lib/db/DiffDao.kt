@@ -60,7 +60,9 @@ internal class DiffDaoImpl(
 
     override fun update(entity: Entity) {
         CoroutineScope(dbContext).launch {
-            val id = diffQueries.lastInsertId().executeAsOne()
+            //SQLite starts ID on insert from 1 but if no insert were made during the session returns 0 as a lastInsertId()
+            //val id = diffQueries.lastInsertId().executeAsOne()
+            val id = 1L
             diffQueries.updateEntityDiff(id, entity.toJson())
         }
     }

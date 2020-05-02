@@ -20,6 +20,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
+import ru.beryukhov.backend.routes.clientId
 import ru.beryukhov.backend.routes.entities
 import ru.beryukhov.backend.routes.error
 import ru.beryukhov.backend.routes.styles
@@ -57,6 +58,10 @@ fun Application.main() {
     val backendRepository = BackendRepository(
         entityRepository = EntityRepository(broadcastChannel = channel)
     )
+    val gson = GsonBuilder()
+        .setPrettyPrinting()
+        .serializeNulls()
+        .create()
 
     install(WebSockets)
     install(Routing) {
@@ -67,7 +72,8 @@ fun Application.main() {
     // To allow better scaling for large applications,
     // we have moved those route registrations into several extension methods and files.
     routing {
-        entities(backendRepository)
+        entities(backendRepository, gson)
+        clientId(backendRepository, gson)
 
         error()
 

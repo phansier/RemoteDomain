@@ -27,4 +27,9 @@ class ClientApiImpl(
         httpClient.makeRequest("get(\"$serverUrl/$endpoint\")") {
             get<Success<Entity>>("$serverUrl/$endpoint")
         }
+
+    override suspend fun getClientId(): Result<String> =
+        httpClient.makeRequest("get(\"$serverUrl/clientid\")") {
+            get<Success<String>>("$serverUrl/clientid")
+        }
 }

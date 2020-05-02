@@ -11,14 +11,14 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import kotlinx.android.synthetic.main.post_fragment.*
-import kotlinx.android.synthetic.main.user_fragment.*
 import kotlinx.android.synthetic.main.user_fragment.button
 import kotlinx.android.synthetic.main.user_fragment.textField
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import ru.beryukhov.client_lib.RemoteDomainClient
 import ru.beryukhov.remote_domain.domain.Post
-import ru.beryukhov.remote_domain.domain.User
+import ru.beryukhov.remote_domain.domain.getIdFromToString
+import ru.beryukhov.remote_domain.main.users
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
@@ -43,9 +43,10 @@ class PostFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val post = args.post
+        val users = remoteDomainClient.getEntity().users()!!
         if (post != null) {
             post_id.text = post.id
-            userTextField.editText?.setText(post.userId)
+            userTextField.editText?.setText(users.find { it.id == post.userId}.toString())
             textField.editText?.setText(post.message)
             deleteButton.visibility = View.VISIBLE
             deleteButton.setOnClickListener {
@@ -55,20 +56,23 @@ class PostFragment : Fragment() {
                 findNavController().popBackStack()
             }
         }
-
-        val items = listOf("Material", "Design", "Components", "Android") //todo real users
-        val adapter = ArrayAdapter(requireContext(), R.layout.list_item, items)
+        val adapter = ArrayAdapter(requireContext(), R.layout.list_item, users)
         (userTextField.editText as? AutoCompleteTextView)?.setAdapter(adapter)
 
         textField.editText?.doOnTextChanged { inputText, _, _, _ ->
             val text = textField.editText?.text.toString()
+            val userId = getIdFromToString(userTextField.editText!!.text.toString())
             if (text.isNotEmpty()) {
                 button.visibility = View.VISIBLE
                 button.text = if (post != null) "Update" else "Create"
                 button.setOnClickListener {
                     if (post == null) {
                         remoteDomainClient.pushChanges(
-                            Post("-1", "-1", text).createDiff//todo think about unique id
+                            Post(
+                                id = remoteDomainClient.getNewId(),
+                                userId = userId,
+                                message = text
+                            ).createDiff
                         )
                     } else {
                         remoteDomainClient.pushChanges(

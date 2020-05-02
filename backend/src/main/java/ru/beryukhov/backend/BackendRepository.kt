@@ -46,7 +46,7 @@ data class TestPost(val id: String, val userId: String, val message: String) {
 class EntityRepository(private val broadcastChannel: BroadcastChannel<ApiRequest>) :
     EntityApi {
     @Volatile
-    private var nextUserId: Int = 0
+    private var nextUserId: Long = 0
 
     private val testUser = TestUser("0", "TestaTestovna")
     private val testPost = TestPost("0", "0", "Coronavirus")
@@ -83,6 +83,13 @@ class EntityRepository(private val broadcastChannel: BroadcastChannel<ApiRequest
 
     override suspend fun get(): Result<Entity> {
         return Success(entity)
+    }
+
+    override suspend fun getClientId(): Result<String> {
+        synchronized(this){
+            nextUserId++
+            return Success(nextUserId.toString())
+        }
     }
 
     /*override suspend fun getPostsDiff(from: Long, to: Long): Result<Diff<List<Post>>> {

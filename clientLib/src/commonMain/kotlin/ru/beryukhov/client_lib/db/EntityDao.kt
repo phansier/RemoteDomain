@@ -59,10 +59,26 @@ internal class EntityDaoImpl(
 
     override fun update(entity: Entity) {
         CoroutineScope(dbContext).launch {
-            val id = domainQueries.lastInsertId().executeAsOne()
+            //SQLite starts ID on insert from 1 but if no insert were made during the session returns 0 as a lastInsertId()
+            //val id = domainQueries.lastInsertId().executeAsOne()
+            val id = 1L
             domainQueries.updateDbEntity(id, entity.toJson())
         }
     }
+
+    override fun getEntityJson(): String {
+        return domainQueries.selectAll().executeAsOne().json!!
+    }
+
+    override fun updateJson(json: String) {
+        CoroutineScope(dbContext).launch {
+            //SQLite starts ID on insert from 1 but if no insert were made during the session returns 0 as a lastInsertId()
+            //val id = diffQueries.lastInsertId().executeAsOne()
+            val id = 1L
+            domainQueries.updateDbEntity(id, json)
+        }
+    }
+
 }
 
 expect fun Entity.toJson(): String

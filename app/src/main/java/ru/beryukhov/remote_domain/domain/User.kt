@@ -1,5 +1,6 @@
 package ru.beryukhov.remote_domain.domain
 
+import android.util.Log
 import ru.beryukhov.common.model.Entity
 import java.io.Serializable
 
@@ -21,4 +22,11 @@ data class User(val id: String, val userName: String) : Serializable {
     }
 
     constructor(id: String, entity: Entity) : this(id, entity.leaf ?: "")
+
+
+}
+
+fun getIdFromToString(s: String):String{
+    val regex = Regex("(?<=id=).*(?=,)")
+    return regex.find(s)!!.value
 }

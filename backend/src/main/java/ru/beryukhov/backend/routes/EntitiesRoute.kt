@@ -1,5 +1,6 @@
 package ru.beryukhov.backend.routes
 
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import io.ktor.application.call
 import io.ktor.http.ContentType
@@ -26,12 +27,9 @@ class Entities
 @ExperimentalCoroutinesApi
 @KtorExperimentalLocationsAPI
 fun Route.entities(
-    backendRepository: BackendRepository
+    backendRepository: BackendRepository,
+    gson: Gson
 ) {
-    val gson = GsonBuilder()
-        .setPrettyPrinting()
-        .serializeNulls()
-        .create()
 
     post<Entities> {
         val entity = call.receive<Entity>()

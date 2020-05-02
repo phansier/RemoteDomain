@@ -6,4 +6,5 @@ import ru.beryukhov.common.model.Result
 interface EntityApi {
     suspend fun post(entity: Entity): Result<Entity>
     suspend fun get(): Result<Entity>
+    suspend fun getClientId(): Result<String>
 }

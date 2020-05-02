@@ -51,8 +51,8 @@ internal object DiffImpl : Diff {
     override fun apply(e: Entity, diff: Entity?): Entity {
         if (diff == null) return e
         val result = DiffEntity(
-            e.data?.toMutableMap(),
-            diff.leaf ?: e.leaf
+            data = e.data?.toMutableMap() ?: mutableMapOf(),
+            leaf = diff.leaf ?: e.leaf
         )
         if (diff.data == null) return result.entity
         diff.data.keys.forEach {

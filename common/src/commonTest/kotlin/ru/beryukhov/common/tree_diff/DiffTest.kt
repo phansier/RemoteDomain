@@ -212,4 +212,11 @@ class DiffTest {
         assertEquals(DiffImpl.apply(a_add_user,diff2),  DiffImpl.apply(a, diff))
     }
 
+    @Test
+    fun emtptyApplyDiff(){
+        val empty = Entity()
+        val diff = `a_add_user-a`
+        assertEquals(diff, DiffImpl.apply(empty, diff))
+    }
+
 }

@@ -36,6 +36,8 @@ interface RemoteDomainClientApi {
      */
     fun getEntityFlow(): Flow<Entity>
 
+    fun getEntity(): Entity
+
     fun pushChanges(diff: Entity)
 
 }
@@ -98,6 +100,8 @@ internal class RemoteDomainClientImpl(
     override fun getEntityFlow() =
         entityDao.getEntityFlow().combine(diffDao.getEntityFlow()) { entity, diff -> entity + diff }
             .onEach { log("RemoteDomainClientImpl", "combine: $it") }
+
+    override fun getEntity() = entityDao.getEntity() + diffDao.getEntity()
 
     override fun pushChanges(diff: Entity) {
         GlobalScope.launch {

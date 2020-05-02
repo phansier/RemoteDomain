@@ -19,6 +19,7 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 import ru.beryukhov.client_lib.RemoteDomainClient
 import ru.beryukhov.remote_domain.domain.Post
 import ru.beryukhov.remote_domain.domain.User
+import ru.beryukhov.remote_domain.main.users
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
@@ -56,7 +57,7 @@ class PostFragment : Fragment() {
             }
         }
 
-        val items = listOf("Material", "Design", "Components", "Android") //todo real users
+        val items = remoteDomainClient.getEntity().users()!!
         val adapter = ArrayAdapter(requireContext(), R.layout.list_item, items)
         (userTextField.editText as? AutoCompleteTextView)?.setAdapter(adapter)
 

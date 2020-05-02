@@ -1,3 +1,4 @@
+@file:JvmName("LibStateAndroid")
 package ru.beryukhov.client_lib
 
 import android.app.Application
@@ -23,7 +24,7 @@ actual class LibState(private val appContext: Application) {
 
     actual fun getLibFirstInit(): Boolean = preferences.getBoolean(FIRST_INIT, false)
 
-    actual fun getClientId(): String = preferences.getString(CLIENT_ID, "-1")!!
+    actual fun getClientId(): String = preferences.getString(CLIENT_ID, DEFAULT_CLIENT_ID)!!
 
     actual fun setClientId(id: String) = preferences.edit()
     .putString(CLIENT_ID, id)

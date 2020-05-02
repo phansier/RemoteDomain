@@ -31,6 +31,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api project(':common')
+            api project(':reactiveNetwork')
 
             implementation 'org.jetbrains.kotlin:kotlin-stdlib'
             implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$coroutines_version"
@@ -45,6 +46,7 @@ kotlin {
 
         commonTest.dependencies {
             api project(':common')
+            api project(':reactiveNetwork')
 
             implementation "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
             implementation "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlin_version"
@@ -52,6 +54,7 @@ kotlin {
 
         androidMain.dependencies {
             api project(':common')
+            api project(':reactiveNetwork')
 
             implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
             implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
@@ -71,6 +74,7 @@ kotlin {
 
         androidTest.dependencies {
             api project(':common')
+            api project(':reactiveNetwork')
 
             implementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
             implementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"

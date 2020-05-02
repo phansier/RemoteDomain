@@ -1,5 +1,7 @@
 package ru.beryukhov.client_lib
 
+const val DEFAULT_CLIENT_ID = "-1"
+
 expect class LibState {
     fun saveLibFirstInit()
     fun getLibFirstInit(): Boolean

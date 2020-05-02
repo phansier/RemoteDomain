@@ -1,7 +1,8 @@
 package ru.beryukhov.remote_domain.domain
 
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Test
+import ru.beryukhov.client_lib.replaceDefaultClientId
 
 class UserTest {
     @Test

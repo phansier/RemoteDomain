@@ -1,15 +1,11 @@
 package ru.beryukhov.client_lib
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.ObsoleteCoroutinesApi
+import RN
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import ru.beryukhov.client_lib.db.Dao
-import ru.beryukhov.client_lib.db.DaoStorageImpl
 import ru.beryukhov.client_lib.db.DiffDao
 import ru.beryukhov.client_lib.db.EntityDao
 import ru.beryukhov.client_lib.http.ClientApi
@@ -51,7 +47,8 @@ expect class RemoteDomainClient : RemoteDomainClientApi
 internal class RemoteDomainClientImpl(
     private val entityDao: EntityDao,
     private val diffDao: DiffDao,
-    private val libState: LibState
+    private val libState: LibState,
+    private val reactiveNetwork: RN
 ) : RemoteDomainClientApi {
 
     @Volatile
@@ -70,12 +67,12 @@ internal class RemoteDomainClientImpl(
         isTableInit = true
     }
 
-    override fun init(SERVER_URL: String, SOCKET_URL: String, logRequests: Boolean) {
+    override fun init(serverUrl: String, socketUrl: String, logRequests: Boolean) {
         if (isInit) {
             return
         }
         val broadcastChannel = BroadcastChannel<Any>(Channel.CONFLATED)
-        val httpClientRepository = HttpClientRepositoryImpl(SERVER_URL, logRequests)
+        val httpClientRepository = HttpClientRepositoryImpl(serverUrl, logRequests)
         clientApi = httpClientRepository.clientApi
 
         GlobalScope.launch {
@@ -92,10 +89,15 @@ internal class RemoteDomainClientImpl(
             }
         }
         broadcastChannel.offer(Unit)
-        push.startReceive(socketUrl = SOCKET_URL) {
-            //there is an ApiRequest in JSON for future optimizations with update method, etc.
-            broadcastChannel.offer(Unit)
-        }
+        reConnectWebSocket(socketUrl, broadcastChannel)
+        reactiveNetwork.observeNetworkConnectivity().onEach {
+            log("RemoteDomainClientImpl", "InternetConnectivity changed on $it")
+            if (it.available) {
+                tryToGetClientId()
+                reConnectWebSocket(socketUrl, broadcastChannel)
+                tryToSyncDiff()
+            }
+        }.launchIn(CoroutineScope(Dispatchers.Default))
         isInit = true
     }
 
@@ -120,12 +122,54 @@ internal class RemoteDomainClientImpl(
     }
 
     override fun getNewId(): String {
-        return libState.getClientId()+"_"+libState.getAndIncrementId()
+        return libState.getClientId() + "_" + libState.getAndIncrementId()
+    }
+
+    private suspend fun tryToGetClientId() {
+        if (libState.getClientId() == DEFAULT_CLIENT_ID) {
+            try {
+                //get from server
+                val result = clientApi.getClientId()
+                if (result is Success) {
+                    val clientId = result.value
+                    //update in shared prefs
+                    libState.setClientId(clientId)
+                    //actualize diff
+                    diffDao.updateJson(
+                        replaceDefaultClientId(
+                            DEFAULT_CLIENT_ID,
+                            clientId,
+                            diffDao.getEntityJson()
+                        )
+                    )
+                }
+            } catch (e: Throwable) {
+                log("RemoteDomainClientImpl", "tryToGetClientId HTTP error: ${e.message}")
+            }
+        }
+    }
+
+
+    private fun reConnectWebSocket(socketUrl: String, broadcastChannel: BroadcastChannel<Any>) {
+        push.startReceive(socketUrl = socketUrl) {
+            //there is an ApiRequest in JSON for future optimizations with update method, etc.
+            broadcastChannel.offer(Unit)
+        }
+    }
+
+    private fun tryToSyncDiff() {
+        GlobalScope.launch {
+            try {
+                clientApi.create(diffDao.getEntity(), "entity")
+                diffDao.update(Entity())
+            } catch (e: Throwable) {
+                log("RemoteDomainClientImpl", "tryToSyncDiff HTTP error: ${e.message}")
+            }
+        }
     }
 }
 
-/*
-Todo
-Problem #1
-Update after second message creates new record in database
- */
+fun replaceDefaultClientId(defaultClientId: String, clientId: String, diff: String): String {
+    val regex = Regex("(?<=\")$defaultClientId(?=_\\d+\")")
+    return diff.replace(regex, clientId)
+}

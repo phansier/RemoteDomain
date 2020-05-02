@@ -58,6 +58,10 @@ internal class DiffDaoImpl(
         return diffQueries.selectAll().executeAsOne().toEntity()
     }
 
+    override fun getEntityJson(): String {
+        return diffQueries.selectAll().executeAsOne().json!!
+    }
+
     override fun update(entity: Entity) {
         CoroutineScope(dbContext).launch {
             //SQLite starts ID on insert from 1 but if no insert were made during the session returns 0 as a lastInsertId()
@@ -66,6 +70,16 @@ internal class DiffDaoImpl(
             diffQueries.updateEntityDiff(id, entity.toJson())
         }
     }
+
+    override fun updateJson(json: String) {
+        CoroutineScope(dbContext).launch {
+            //SQLite starts ID on insert from 1 but if no insert were made during the session returns 0 as a lastInsertId()
+            //val id = diffQueries.lastInsertId().executeAsOne()
+            val id = 1L
+            diffQueries.updateEntityDiff(id, json)
+        }
+    }
+
 }
 
 expect fun EntityDiff.toEntity(): Entity

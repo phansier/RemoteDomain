@@ -27,7 +27,6 @@ data class User(val id: String, val userName: String) : Serializable {
 }
 
 fun getIdFromToString(s: String):String{
-    Log.i("User", "getIdFromToString($s)")
     val regex = Regex("(?<=id=).*(?=,)")
     return regex.find(s)!!.value
 }

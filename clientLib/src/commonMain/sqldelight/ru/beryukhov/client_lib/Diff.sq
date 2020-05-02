@@ -1,0 +1,28 @@
+createEntityDiffTable:
+CREATE TABLE IF NOT EXISTS EntityDiff  (
+  id INTEGER NOT NULL PRIMARY KEY,
+  json TEXT
+);
+
+deleteEntityDiffTable:
+DROP TABLE IF EXISTS EntityDiff;
+
+insertEntityDiff:
+INSERT OR REPLACE INTO EntityDiff(id, json)
+VALUES (NULL,?);
+
+updateEntityDiff:
+INSERT OR REPLACE INTO EntityDiff(id, json)
+VALUES (?,?);
+
+deleteEntityDiff:
+DELETE
+FROM EntityDiff
+WHERE id = ?;
+
+selectAll:
+SELECT *
+FROM EntityDiff;
+
+lastInsertId:
+SELECT last_insert_rowid();

@@ -2,4 +2,5 @@ include ':common'
 include ':clientLib'
 include ':backend'
 include ':app'
+include ':reactiveNetwork'
 rootProject.name = "Remote Domain"

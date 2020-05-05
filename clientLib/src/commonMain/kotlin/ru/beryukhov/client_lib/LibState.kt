@@ -8,4 +8,6 @@ expect class LibState {
     fun getClientId(): String
     fun setClientId(id: String)
     fun getAndIncrementId(): Long
+    fun generateAndSaveEncodedPassword(): String
+    fun getEncodedPassword(): String?
 }

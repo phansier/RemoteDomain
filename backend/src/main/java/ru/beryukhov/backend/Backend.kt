@@ -3,6 +3,10 @@ package ru.beryukhov.backend
 import com.google.gson.GsonBuilder
 import io.ktor.application.Application
 import io.ktor.application.install
+import io.ktor.auth.Authentication
+import io.ktor.auth.UserHashedTableAuth
+import io.ktor.auth.authenticate
+import io.ktor.auth.basic
 import io.ktor.features.*
 import io.ktor.gson.GsonConverter
 import io.ktor.http.ContentType
@@ -14,6 +18,8 @@ import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Locations
 import io.ktor.routing.Routing
 import io.ktor.routing.routing
+import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.getDigestFunction
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
 import kotlinx.coroutines.*
@@ -25,8 +31,10 @@ import ru.beryukhov.backend.routes.entities
 import ru.beryukhov.backend.routes.error
 import ru.beryukhov.backend.routes.styles
 import ru.beryukhov.common.ApiRequest
+import java.util.*
 
 //https://github.com/ktorio/ktor-samples/tree/master/app/youkube
+@KtorExperimentalAPI
 @ObsoleteCoroutinesApi
 @InternalCoroutinesApi
 @ExperimentalCoroutinesApi
@@ -67,13 +75,21 @@ fun Application.main() {
     install(Routing) {
         launchWebSocket(channel)
     }
+    install(Authentication) {
+        basic("hashed") {
+            realm = "ktor"
+            validate { hashedUserTable.authenticate(it) }
+        }
+    }
 
     // Register all the routes available to this application.
     // To allow better scaling for large applications,
     // we have moved those route registrations into several extension methods and files.
     routing {
-        entities(backendRepository, gson)
-        clientId(backendRepository, gson)
+        authenticate("hashed") {
+            entities(backendRepository, gson)
+        }
+        clientId(backendRepository, gson, usersTable)
 
         error()
 
@@ -88,6 +104,18 @@ fun Application.main() {
 
     }
 }
+
+val usersTable = mutableMapOf(
+    //todo remove test account
+    "test" to Base64.getDecoder().decode("GSjkHCHGAxTTbnkEDBbVYd+PUFRlcWiumc4+MWE9Rvw=") // sha256 for "test"
+)
+
+@KtorExperimentalAPI
+val hashedUserTable = UserHashedTableAuth(
+    getDigestFunction("SHA-256") { "ktor${it.length}" },
+    table = usersTable
+)
+
 
 @InternalCoroutinesApi
 @ObsoleteCoroutinesApi

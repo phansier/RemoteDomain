@@ -7,7 +7,6 @@ import ru.beryukhov.common.model.*
 
 open class BaseHttpClient {
     companion object {
-        const val HEADER_CONTENT_TYPE = "Content-Type"
         const val HEADER_JSON = "application/json"
     }
 

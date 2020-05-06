@@ -1,6 +1,7 @@
 package ru.beryukhov.client_lib
 
 import RN
+import io.ktor.util.InternalAPI
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.*
 import ru.beryukhov.client_lib.db.DiffDao
 import ru.beryukhov.client_lib.db.EntityDao
 import ru.beryukhov.client_lib.http.ClientApi
+import ru.beryukhov.client_lib.http.Credentials
 import ru.beryukhov.client_lib.http.HttpClientRepositoryImpl
 import ru.beryukhov.client_lib.push.push
 import ru.beryukhov.common.model.Entity
@@ -25,7 +27,7 @@ interface RemoteDomainClientApi {
     /**
      * Opens WebSocket to receive data updates
      */
-    fun init(SERVER_URL: String, SOCKET_URL: String, logRequests: Boolean)
+    fun init(serverUrl: String, socketUrl: String, logRequests: Boolean)
 
     /**
      * Returns stream of Entity changes
@@ -42,6 +44,7 @@ interface RemoteDomainClientApi {
 
 expect class RemoteDomainClient : RemoteDomainClientApi
 
+@InternalAPI
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 internal class RemoteDomainClientImpl(
@@ -79,7 +82,7 @@ internal class RemoteDomainClientImpl(
             broadcastChannel.consumeEach {
                 log("RemoteDomainClientImpl", "event got")
                 try {
-                    val result = clientApi.get("entity")
+                    val result = clientApi.get(Credentials(libState.getClientId(), libState.getEncodedPassword()!!))
                     if (result is Success) {
                         entityDao.update(result.value)
                     }
@@ -110,7 +113,7 @@ internal class RemoteDomainClientImpl(
     override fun pushChanges(diff: Entity) {
         GlobalScope.launch {
             try {
-                clientApi.create(diff, "entity")
+                clientApi.create(diff, Credentials(libState.getClientId(), libState.getEncodedPassword()!!))
             } catch (e: Throwable) {
                 log("RemoteDomainClientImpl", "pushChanges HTTP error: ${e.message}")
                 log("RemoteDomainClientImpl", "pushChanges diff: $diff")
@@ -129,7 +132,8 @@ internal class RemoteDomainClientImpl(
         if (libState.getClientId() == DEFAULT_CLIENT_ID) {
             try {
                 //get from server
-                val result = clientApi.getClientId()
+                val passwordEncoded = libState.generateAndSaveEncodedPassword()
+                val result = clientApi.getClientId(passwordEncoded)
                 if (result is Success) {
                     val clientId = result.value
                     //update in shared prefs
@@ -149,7 +153,6 @@ internal class RemoteDomainClientImpl(
         }
     }
 
-
     private fun reConnectWebSocket(socketUrl: String, broadcastChannel: BroadcastChannel<Any>) {
         push.startReceive(socketUrl = socketUrl) {
             //there is an ApiRequest in JSON for future optimizations with update method, etc.
@@ -160,7 +163,7 @@ internal class RemoteDomainClientImpl(
     private fun tryToSyncDiff() {
         GlobalScope.launch {
             try {
-                clientApi.create(diffDao.getEntity(), "entity")
+                clientApi.create(diffDao.getEntity(), Credentials(libState.getClientId(), libState.getEncodedPassword()!!))
                 diffDao.update(Entity())
             } catch (e: Throwable) {
                 log("RemoteDomainClientImpl", "tryToSyncDiff HTTP error: ${e.message}")

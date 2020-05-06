@@ -2,7 +2,8 @@ package ru.beryukhov.backend
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BroadcastChannel
-import ru.beryukhov.common.*
+import ru.beryukhov.common.ApiRequest
+import ru.beryukhov.common.Create
 import ru.beryukhov.common.model.*
 import ru.beryukhov.common.tree_diff.plus
 
@@ -26,14 +27,16 @@ data class TestPost(val id: String, val userId: String, val message: String) {
         private const val USER_ID = "UserId"
         private const val MESSAGE = "Message"
     }
-    val entity get() = Pair(
-        id, Entity(
-            mapOf(
-                USER_ID to Entity(leaf = userId),
-                MESSAGE to Entity(leaf = message)
+
+    val entity
+        get() = Pair(
+            id, Entity(
+                mapOf(
+                    USER_ID to Entity(leaf = userId),
+                    MESSAGE to Entity(leaf = message)
+                )
             )
         )
-    )
 
     constructor(id: String, entity: Entity) : this(
         id,
@@ -75,18 +78,25 @@ class EntityRepository(private val broadcastChannel: BroadcastChannel<ApiRequest
         )
 
 
-    override suspend fun post(entity: Entity): Result<Entity> {
-        this.entity += entity
+    override suspend fun post(diff: Entity, clientId: String): Result<Entity> {
+        if (!diff.validate(entity, clientId))
+            return Failure((ForbiddenClientId("Diff contains forbidden client ids")))
+        entity += diff
         broadcastChannel.offer(ApiRequest(method = Create, entity = Entity::class))
-        return Success(this.entity)
-    }
-
-    override suspend fun get(): Result<Entity> {
         return Success(entity)
     }
 
+    override suspend fun get(clientId: String): Result<Entity> {
+        val result = entity.filter(clientId)
+        if (result != null) {
+            return Success(result)
+        } else {
+            return Failure(Forbidden("For this client entity is not available"))
+        }
+    }
+
     override suspend fun getClientId(): Result<String> {
-        synchronized(this){
+        synchronized(this) {
             nextUserId++
             return Success(nextUserId.toString())
         }

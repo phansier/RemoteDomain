@@ -1,6 +1,7 @@
 package ru.beryukhov.common.tree_diff
 
 import ru.beryukhov.common.model.Entity
+import ru.beryukhov.common.model.PrivacyMode
 
 interface Diff {
     //Entity-Entity = Entity(Diff)
@@ -52,7 +53,9 @@ internal object DiffImpl : Diff {
         if (diff == null) return e
         val result = DiffEntity(
             data = e.data?.toMutableMap() ?: mutableMapOf(),
-            leaf = diff.leaf ?: e.leaf
+            leaf = diff.leaf ?: e.leaf,
+            creatorClientId = e.creatorClientId,
+            privacyMode = e.privacyMode
         )
         if (diff.data == null) return result.entity
         diff.data.keys.forEach {
@@ -74,9 +77,17 @@ internal object DiffImpl : Diff {
 /**
  * Special case of Entity with mutable map for performance
  */
-private data class DiffEntity(
+internal data class DiffEntity(
     val data: MutableMap<String, Entity?>? = null, //Entity in Map should be null only in diff
-    val leaf: String? = null
+    val leaf: String? = null,
+    val creatorClientId: String? = null,
+    val privacyMode: PrivacyMode = PrivacyMode.UPDATE
 ) {
-    val entity get() = Entity(if (data.isNullOrEmpty()) null else data, leaf)
+    val entity
+        get() = Entity(
+            if (data.isNullOrEmpty()) null else data,
+            leaf,
+            creatorClientId,
+            privacyMode
+        )
 }

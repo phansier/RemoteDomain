@@ -3,6 +3,8 @@ package ru.beryukhov.backend.routes
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import io.ktor.application.call
+import io.ktor.auth.UserIdPrincipal
+import io.ktor.auth.principal
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
@@ -33,7 +35,15 @@ fun Route.entities(
 
     post<Entities> {
         val entity = call.receive<Entity>()
-        val result = backendRepository.post(entity)
+        val clientId = call.principal<UserIdPrincipal>()?.name
+        if (clientId == null){
+            call.respond(
+                status = HttpStatusCode.Unauthorized,
+                message = TextContent("ClientId is null", contentType = ContentType.Text.Plain)
+            )
+            return@post
+        }
+        val result = backendRepository.post(entity, clientId)
         call.respond(
             status = if (result is Success) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions
             message = TextContent(
@@ -44,7 +54,15 @@ fun Route.entities(
     }
 
     get<Entities> {
-        val entity = backendRepository.get()
+        val clientId = call.principal<UserIdPrincipal>()?.name
+        if (clientId == null){
+            call.respond(
+                status = HttpStatusCode.Unauthorized,
+                message = TextContent("ClientId is null", contentType = ContentType.Text.Plain)
+            )
+            return@get
+        }
+        val entity = backendRepository.get(clientId)
         call.respond(
             status = if (entity is Success) HttpStatusCode.OK else HttpStatusCode.InternalServerError,//todo make mapping for exceptions
             message = TextContent(

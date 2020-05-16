@@ -8,11 +8,16 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.user_fragment.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import ru.beryukhov.client_lib.RemoteDomainClient
 import ru.beryukhov.remote_domain.domain.User
+import ru.beryukhov.remote_domain.main.posts
+import ru.beryukhov.remote_domain.main.users
+import ru.beryukhov.remote_domain.recycler.DomainListAdapter
+import ru.beryukhov.remote_domain.recycler.PostItem
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
@@ -23,6 +28,9 @@ class UserFragment : Fragment() {
     }
 
     private val args: UserFragmentArgs by navArgs()
+
+    private lateinit var adapter: DomainListAdapter
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -71,5 +79,25 @@ class UserFragment : Fragment() {
                 button.visibility = View.GONE
             }
         }
+
+        adapter = setupRecycler()
+    }
+
+    private fun setupRecycler(): DomainListAdapter {
+        val adapter = DomainListAdapter()
+        recycler_view.layoutManager = LinearLayoutManager(requireContext())
+        recycler_view.adapter = adapter
+
+        val user = args.user
+        if (user !=null) {
+            val entity = remoteDomainClient.getEntity()
+            val users = entity.users()
+            adapter.add(entity.posts()
+                ?.filter { post -> post.userId == user.id}
+                ?.map { item -> PostItem(item, users?.find { it.id == item.userId }) }
+            )
+        }
+
+        return adapter
     }
 }

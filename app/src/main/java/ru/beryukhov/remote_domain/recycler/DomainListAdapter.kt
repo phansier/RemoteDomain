@@ -6,6 +6,7 @@ import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.post_item.view.*
 import kotlinx.android.synthetic.main.user_item.view.*
+import ru.beryukhov.remote_domain.BuildConfig
 import ru.beryukhov.remote_domain.baserecyclerview.SimpleListAdapter
 import ru.beryukhov.remote_domain.R
 import ru.beryukhov.remote_domain.baserecyclerview.IBaseListItem
@@ -60,12 +61,27 @@ class DomainListAdapter : SimpleListAdapter() {
         when (holder) {
             is PostViewHolder -> {
                 val postItem = items[position] as PostItem
-                holder.postTitle.text = "${postItem.user?.id} : ${postItem.user?.userName}"
-                holder.postMessage.text = "${postItem.post.id} : ${postItem.post.message}"
+                holder.postTitle.text = (
+                        if (BuildConfig.SHOW_ENTITY_ID)
+                            "${postItem.user?.id} : "
+                        else ""
+                        ) +
+                        "${postItem.user?.userName}"
+                holder.postMessage.text = (
+                        if (BuildConfig.SHOW_ENTITY_ID)
+                            "${postItem.post.id} : "
+                        else ""
+                        ) +
+                        "${postItem.post.message}"
             }
             is UserViewHolder -> {
                 val userItem = items[position] as UserItem
-                holder.userName.text = "${userItem.user.id} : ${userItem.user.userName}"
+                holder.userName.text = (
+                        if (BuildConfig.SHOW_ENTITY_ID)
+                            "${userItem.user.id} : "
+                        else ""
+                        ) +
+                        "${userItem.user.userName}"
 
             }
 

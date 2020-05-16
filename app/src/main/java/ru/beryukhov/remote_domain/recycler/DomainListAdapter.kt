@@ -6,6 +6,7 @@ import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.post_item.view.*
 import kotlinx.android.synthetic.main.user_item.view.*
+import ru.beryukhov.remote_domain.BuildConfig
 import ru.beryukhov.remote_domain.baserecyclerview.SimpleListAdapter
 import ru.beryukhov.remote_domain.R
 import ru.beryukhov.remote_domain.baserecyclerview.IBaseListItem
@@ -23,27 +24,35 @@ class DomainListAdapter : SimpleListAdapter() {
 
         val context = parent.context
 
-        return when (viewType) {
+        val holder = when (viewType) {
             R.layout.user_item -> UserViewHolder(inflateByViewType(context, viewType, parent))
-            R.layout.post_item -> {
-                val holder = PostViewHolder(inflateByViewType(context, viewType, parent))
-                holder.itemView.setOnClickListener {
-                    val position = holder.adapterPosition
-                    if (position != RecyclerView.NO_POSITION) {
-                        onItemClick(position, holder.itemView)
-                    }
-                }
-                return holder
-            }
+            R.layout.post_item -> PostViewHolder(inflateByViewType(context, viewType, parent))
             else -> throw IllegalStateException("There is no match with current layoutId")
         }
+        holder.itemView.setOnClickListener {
+            val position = holder.adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                onItemClick(position, holder.itemView)
+            }
+        }
+
+        return holder
     }
 
     fun onItemClick(adapterPosition: Int, view: View) {
 
         val item = items[adapterPosition]
-        if (item is PostItem){
-            findNavController(view).navigate(MainFragmentDirections.actionMainToPost(post = item.post))
+        when (item) {
+            is PostItem -> findNavController(view).navigate(
+                MainFragmentDirections.actionMainToPost(
+                    post = item.post
+                )
+            )
+            is UserItem -> findNavController(view).navigate(
+                MainFragmentDirections.actionMainToUser(
+                    user = item.user
+                )
+            )
         }
     }
 
@@ -52,12 +61,27 @@ class DomainListAdapter : SimpleListAdapter() {
         when (holder) {
             is PostViewHolder -> {
                 val postItem = items[position] as PostItem
-                holder.postTitle.text = "${postItem.user?.id} : ${postItem.user?.userName}"
-                holder.postMessage.text = "${postItem.post.id} : ${postItem.post.message}"
+                holder.postTitle.text = (
+                        if (BuildConfig.SHOW_ENTITY_ID)
+                            "${postItem.user?.id} : "
+                        else ""
+                        ) +
+                        "${postItem.user?.userName}"
+                holder.postMessage.text = (
+                        if (BuildConfig.SHOW_ENTITY_ID)
+                            "${postItem.post.id} : "
+                        else ""
+                        ) +
+                        "${postItem.post.message}"
             }
             is UserViewHolder -> {
                 val userItem = items[position] as UserItem
-                holder.userName.text = "${userItem.user.id} : ${userItem.user.userName}"
+                holder.userName.text = (
+                        if (BuildConfig.SHOW_ENTITY_ID)
+                            "${userItem.user.id} : "
+                        else ""
+                        ) +
+                        "${userItem.user.userName}"
 
             }
 

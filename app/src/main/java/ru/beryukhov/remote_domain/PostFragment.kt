@@ -46,7 +46,12 @@ class PostFragment : Fragment() {
         val users = remoteDomainClient.getEntity().users()!!
         if (post != null) {
             post_id.text = post.id
-            userTextField.editText?.setText(users.find { it.id == post.userId}.toString())
+            val user = users.find { it.id == post.userId }
+            val userString =
+                if (BuildConfig.SHOW_ENTITY_ID)
+                    user.toString()
+                else user?.userName
+            userTextField.editText?.setText(userString)
             textField.editText?.setText(post.message)
             deleteButton.visibility = View.VISIBLE
             deleteButton.setOnClickListener {

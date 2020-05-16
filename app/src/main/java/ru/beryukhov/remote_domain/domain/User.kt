@@ -1,6 +1,5 @@
 package ru.beryukhov.remote_domain.domain
 
-import android.util.Log
 import ru.beryukhov.common.model.Entity
 import java.io.Serializable
 
@@ -8,6 +7,8 @@ data class User(val id: String, val userName: String) : Serializable {
     val entity get() = Pair(id, Entity(leaf = userName))
 
     val createDiff get() = diff(entity)
+    val updateDiff get() = diff(entity)
+    val deleteDiff get() = diff(id to null)
 
     private fun diff(pair: Pair<String, Entity?>): Entity {
         return Entity(

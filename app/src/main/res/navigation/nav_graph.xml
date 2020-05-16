@@ -22,6 +22,11 @@
         android:name="ru.beryukhov.remote_domain.UserFragment"
         android:label="User"
         tools:layout="@layout/user_fragment" >
+        <argument
+            android:name="user"
+            app:argType="ru.beryukhov.remote_domain.domain.User"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
 
     <fragment

@@ -15,6 +15,7 @@ import ru.beryukhov.remote_domain.domain.Post
 import ru.beryukhov.remote_domain.domain.User
 import ru.beryukhov.remote_domain.recycler.DomainListAdapter
 import ru.beryukhov.remote_domain.recycler.PostItem
+import ru.beryukhov.remote_domain.recycler.UserItem
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
@@ -26,12 +27,13 @@ class ListFragment : MvpAppCompatFragment(R.layout.list_fragment),
     }
 
     private lateinit var adapter: DomainListAdapter
+    private lateinit var entity: String
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         arguments?.let {
-            //topAppBar.title = it.getString("entity")
+            entity = it.getString(ENTITY_ARGUMENT, ENTITY_POST)
         }
 
         adapter = setupRecycler()
@@ -42,16 +44,30 @@ class ListFragment : MvpAppCompatFragment(R.layout.list_fragment),
 
     private fun setupButtons() {
         fab.setOnClickListener {
-            findNavController().navigate(R.id.action_main_to_post)
+            when (entity){
+                ENTITY_POST -> findNavController().navigate(R.id.action_main_to_post)
+                ENTITY_USER -> findNavController().navigate(R.id.action_main_to_user)
+            }
+
         }
     }
 
     override fun updateEntityUI(entity: Entity) {
         adapter.clearAll()
-        val users = entity.users()
-        adapter.add(entity.posts()
-            ?.map { item -> PostItem(item, users?.find { it.id == item.userId }) }
-        )
+        when (this.entity){
+            ENTITY_POST -> {
+                val users = entity.users()
+                adapter.add(entity.posts()
+                    ?.map { item -> PostItem(item, users?.find { it.id == item.userId }) }
+                )
+            }
+            ENTITY_USER -> {
+                adapter.add(entity.users()
+                    ?.map { item -> UserItem(item) }
+                )
+            }
+        }
+
     }
 
     private fun setupRecycler(): DomainListAdapter {

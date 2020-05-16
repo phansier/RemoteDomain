@@ -23,27 +23,35 @@ class DomainListAdapter : SimpleListAdapter() {
 
         val context = parent.context
 
-        return when (viewType) {
+        val holder = when (viewType) {
             R.layout.user_item -> UserViewHolder(inflateByViewType(context, viewType, parent))
-            R.layout.post_item -> {
-                val holder = PostViewHolder(inflateByViewType(context, viewType, parent))
-                holder.itemView.setOnClickListener {
-                    val position = holder.adapterPosition
-                    if (position != RecyclerView.NO_POSITION) {
-                        onItemClick(position, holder.itemView)
-                    }
-                }
-                return holder
-            }
+            R.layout.post_item -> PostViewHolder(inflateByViewType(context, viewType, parent))
             else -> throw IllegalStateException("There is no match with current layoutId")
         }
+        holder.itemView.setOnClickListener {
+            val position = holder.adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                onItemClick(position, holder.itemView)
+            }
+        }
+
+        return holder
     }
 
     fun onItemClick(adapterPosition: Int, view: View) {
 
         val item = items[adapterPosition]
-        if (item is PostItem){
-            findNavController(view).navigate(MainFragmentDirections.actionMainToPost(post = item.post))
+        when (item) {
+            is PostItem -> findNavController(view).navigate(
+                MainFragmentDirections.actionMainToPost(
+                    post = item.post
+                )
+            )
+            is UserItem -> findNavController(view).navigate(
+                MainFragmentDirections.actionMainToUser(
+                    user = item.user
+                )
+            )
         }
     }
 

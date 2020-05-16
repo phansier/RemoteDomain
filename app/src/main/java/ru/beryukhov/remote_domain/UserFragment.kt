@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import kotlinx.android.synthetic.main.user_fragment.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
@@ -21,6 +22,8 @@ class UserFragment : Fragment() {
         (requireActivity().application as TheApplication).theInteractor.remoteDomainClient
     }
 
+    private val args: UserFragmentArgs by navArgs()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -33,15 +36,35 @@ class UserFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val user = args.user
+
+        if (user != null) {
+            user_id.text = user.id
+            textField.editText?.setText(user.userName)
+            deleteButton.visibility = View.VISIBLE
+            deleteButton.setOnClickListener {
+                remoteDomainClient.pushChanges(
+                    user.deleteDiff
+                )
+                findNavController().popBackStack()
+            }
+        }
+
         textField.editText?.doOnTextChanged { inputText, _, _, _ ->
             val text = textField.editText?.text.toString()
             if (text.isNotEmpty()) {
                 button.visibility = View.VISIBLE
-                button.text = "Create"
+                button.text = if (user != null) "Update" else "Create"
                 button.setOnClickListener {
-                    remoteDomainClient.pushChanges(
-                        User(id = remoteDomainClient.getNewId(), userName = text).createDiff
-                    )
+                    if (user == null) {
+                        remoteDomainClient.pushChanges(
+                            User(id = remoteDomainClient.getNewId(), userName = text).createDiff
+                        )
+                    } else {
+                        remoteDomainClient.pushChanges(
+                            user.copy(userName = text).updateDiff
+                        )
+                    }
                     findNavController().popBackStack()
                 }
             } else {

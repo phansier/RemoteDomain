@@ -14,6 +14,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import ru.beryukhov.remote_domain.R
 
+const val ENTITY_ARGUMENT = "entity"
+const val ENTITY_USER = "Users"
+const val ENTITY_POST = "Posts"
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
@@ -27,7 +30,7 @@ class MainFragment : Fragment() {
         return view
     }
     private val entities = arrayOf(
-        "Posts", "Users"
+        ENTITY_POST, ENTITY_USER
     )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -48,7 +51,7 @@ class ViewPagerFragmentStateAdapter(fragment: Fragment, private val entities: Ar
     override fun getItemCount(): Int = entities.size
     override fun createFragment(position: Int): Fragment = ListFragment().apply {
         arguments = bundleOf(
-            "entity" to entities[position]
+            ENTITY_ARGUMENT to entities[position]
         )
     }
 }

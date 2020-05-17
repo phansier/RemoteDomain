@@ -4,16 +4,27 @@ import ru.beryukhov.common.model.Entity
 import java.io.Serializable
 
 data class User(val id: String, val userName: String) : Serializable {
-    val entity get() = Pair(id, Entity(leaf = userName))
+    companion object {
+        const val USER = "User"
+    }
 
-    val createDiff get() = diff(entity)
-    val updateDiff get() = diff(entity)
-    val deleteDiff get() = diff(id to null)
+    /**
+     * A getter property for mapping User into Pair of Id and Entity
+     */
+    private val entity get() = Pair(id, Entity(leaf = userName))
 
+    /**
+     * A constructor of User instance with Id and Entity parameters
+     */
+    constructor(id: String, entity: Entity) : this(id, entity.leaf ?: "")
+
+    /**
+     * Common function for creation of generic diff
+     */
     private fun diff(pair: Pair<String, Entity?>): Entity {
         return Entity(
             mapOf(
-                "User" to Entity(
+                USER to Entity(
                     mapOf(
                         pair
                     )
@@ -22,6 +33,11 @@ data class User(val id: String, val userName: String) : Serializable {
         )
     }
 
-    constructor(id: String, entity: Entity) : this(id, entity.leaf ?: "")
+    /**
+     * A getter properties for create/update/delete operations
+     */
+    val createDiff get() = diff(entity)
+    val updateDiff get() = diff(entity)
+    val deleteDiff get() = diff(id to null)
 
 }

@@ -66,7 +66,10 @@ class UserFragment : Fragment() {
                 button.setOnClickListener {
                     if (user == null) {
                         remoteDomainClient.pushChanges(
-                            User(id = remoteDomainClient.getNewId(), userName = text).createDiff
+                            User(
+                                id = remoteDomainClient.getNewId(),
+                                userName = text
+                            ).createDiff
                         )
                     } else {
                         remoteDomainClient.pushChanges(
@@ -89,11 +92,11 @@ class UserFragment : Fragment() {
         recycler_view.adapter = adapter
 
         val user = args.user
-        if (user !=null) {
+        if (user != null) {
             val entity = remoteDomainClient.getEntity()
             val users = entity.users()
             adapter.add(entity.posts()
-                ?.filter { post -> post.userId == user.id}
+                ?.filter { post -> post.userId == user.id }
                 ?.map { item -> PostItem(item, users?.find { it.id == item.userId }) }
             )
         }

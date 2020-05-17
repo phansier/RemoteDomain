@@ -8,9 +8,13 @@ import ru.beryukhov.client_lib.RemoteDomainClient
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 class TheInteractor(val applicationContext: Application) {
-    val remoteDomainClient: RemoteDomainClient by lazy{
+    val remoteDomainClient: RemoteDomainClient by lazy {
         RemoteDomainClient(applicationContext).apply {
-            firstInit()
+            init(
+                serverUrl = SERVER_URL,
+                socketUrl = SOCKET_URL,
+                logRequests = BuildConfig.DEBUG
+            )
         }
     }
 }

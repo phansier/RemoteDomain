@@ -4,13 +4,18 @@ import ru.beryukhov.common.model.Entity
 import java.io.Serializable
 
 
-data class Post(val id: String, val userId: String, val message: String) : Serializable {
+data class Post(
+    val id: String,
+    val userId: String,
+    val message: String
+) : Serializable {
     companion object {
+        const val POST = "Post"
         private const val USER_ID = "UserId"
         private const val MESSAGE = "Message"
     }
 
-    val entity
+    private val entity
         get() = Pair(
             id, Entity(
                 mapOf(
@@ -20,16 +25,16 @@ data class Post(val id: String, val userId: String, val message: String) : Seria
             )
         )
 
-    val createDiff get() = diff(entity)
-
-    val updateDiff get() = diff(entity)
-
-    val deleteDiff get() = diff(id to null)
+    constructor(id: String, entity: Entity) : this(
+        id,
+        entity.data?.get(USER_ID)?.leaf ?: "",
+        entity.data?.get(MESSAGE)?.leaf ?: ""
+    )
 
     private fun diff(pair: Pair<String, Entity?>): Entity {
         return Entity(
             mapOf(
-                "Post" to Entity(
+                POST to Entity(
                     mapOf(
                         pair
                     )
@@ -38,9 +43,8 @@ data class Post(val id: String, val userId: String, val message: String) : Seria
         )
     }
 
-    constructor(id: String, entity: Entity) : this(
-        id,
-        entity.data?.get(USER_ID)?.leaf ?: "",
-        entity.data?.get(MESSAGE)?.leaf ?: ""
-    )
+    val createDiff get() = diff(entity)
+    val updateDiff get() = diff(entity)
+    val deleteDiff get() = diff(id to null)
+
 }

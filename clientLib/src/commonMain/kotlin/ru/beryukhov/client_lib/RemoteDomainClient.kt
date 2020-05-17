@@ -19,15 +19,11 @@ import ru.beryukhov.common.tree_diff.plus
 import kotlin.jvm.Volatile
 
 interface RemoteDomainClientApi {
-    /**
-     * Creates table in DB and removes old data if it was.
-     */
-    fun firstInit()
 
     /**
      * Opens WebSocket to receive data updates
      */
-    fun init(serverUrl: String, socketUrl: String, logRequests: Boolean)
+    fun init(serverUrl: String, socketUrl: String, logRequests: Boolean = false)
 
     /**
      * Returns stream of Entity changes
@@ -56,12 +52,16 @@ internal class RemoteDomainClientImpl(
 
     @Volatile
     private var isInit = false
+
     @Volatile
     private var isTableInit = false
 
     private lateinit var clientApi: ClientApi<Entity>
 
-    override fun firstInit() {
+    /**
+     * Creates table in DB and removes old data if it was.
+     */
+    private fun tryFirstInit() {
         if (!libState.getLibFirstInit()) {
             entityDao.createTable()
             diffDao.createTable()
@@ -71,6 +71,7 @@ internal class RemoteDomainClientImpl(
     }
 
     override fun init(serverUrl: String, socketUrl: String, logRequests: Boolean) {
+        tryFirstInit()
         if (isInit) {
             return
         }
@@ -82,7 +83,12 @@ internal class RemoteDomainClientImpl(
             broadcastChannel.consumeEach {
                 log("RemoteDomainClientImpl", "event got")
                 try {
-                    val result = clientApi.get(Credentials(libState.getClientId(), libState.getEncodedPassword()!!))
+                    val result = clientApi.get(
+                        Credentials(
+                            libState.getClientId(),
+                            libState.getEncodedPassword()!!
+                        )
+                    )
                     if (result is Success) {
                         entityDao.update(result.value)
                     }
@@ -113,7 +119,10 @@ internal class RemoteDomainClientImpl(
     override fun pushChanges(diff: Entity) {
         GlobalScope.launch {
             try {
-                clientApi.create(diff, Credentials(libState.getClientId(), libState.getEncodedPassword()!!))
+                clientApi.create(
+                    diff,
+                    Credentials(libState.getClientId(), libState.getEncodedPassword()!!)
+                )
             } catch (e: Throwable) {
                 log("RemoteDomainClientImpl", "pushChanges HTTP error: ${e.message}")
                 log("RemoteDomainClientImpl", "pushChanges diff: $diff")
@@ -163,7 +172,10 @@ internal class RemoteDomainClientImpl(
     private fun tryToSyncDiff() {
         GlobalScope.launch {
             try {
-                clientApi.create(diffDao.getEntity(), Credentials(libState.getClientId(), libState.getEncodedPassword()!!))
+                clientApi.create(
+                    diffDao.getEntity(),
+                    Credentials(libState.getClientId(), libState.getEncodedPassword()!!)
+                )
                 diffDao.update(Entity())
             } catch (e: Throwable) {
                 log("RemoteDomainClientImpl", "tryToSyncDiff HTTP error: ${e.message}")

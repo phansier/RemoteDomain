@@ -9,9 +9,6 @@ import moxy.MvpPresenter
 import moxy.presenterScope
 import ru.beryukhov.client_lib.RemoteDomainClient
 import ru.beryukhov.common.model.Entity
-import ru.beryukhov.remote_domain.BuildConfig
-import ru.beryukhov.remote_domain.SERVER_URL
-import ru.beryukhov.remote_domain.SOCKET_URL
 import ru.beryukhov.remote_domain.TheApplication
 
 @ObsoleteCoroutinesApi
@@ -24,16 +21,11 @@ class MainPresenter(private val applicationContext: Application) : MvpPresenter<
 
 
     override fun onFirstViewAttach() {
+        // Coroutine that will be canceled when presenter is destroyed
         presenterScope.launch {
-            // Coroutine that will be canceled when presenter is destroyed
-            remoteDomainClient.getEntityFlow().onEach(::updateEntityUI)
+            remoteDomainClient.getEntityFlow()
+                .onEach(::updateEntityUI)
                 .launchIn(CoroutineScope(Dispatchers.Default))
-
-            remoteDomainClient.init(
-                SERVER_URL,
-                SOCKET_URL,
-                BuildConfig.DEBUG
-            )
         }
     }
 

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView.OnItemClickListener
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.core.widget.doOnTextChanged
@@ -17,8 +18,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import ru.beryukhov.client_lib.RemoteDomainClient
 import ru.beryukhov.remote_domain.domain.Post
-import ru.beryukhov.remote_domain.domain.getIdFromToString
 import ru.beryukhov.remote_domain.main.users
+
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
@@ -44,9 +45,12 @@ class PostFragment : Fragment() {
 
         val post = args.post
         val users = remoteDomainClient.getEntity().users()!!
+        var currentUserId: String = users[0].id
+
         if (post != null) {
             post_id.text = post.id
             val user = users.find { it.id == post.userId }
+            user?.id?.let { currentUserId = it }
             val userString =
                 if (BuildConfig.SHOW_ENTITY_ID)
                     user.toString()
@@ -61,34 +65,43 @@ class PostFragment : Fragment() {
                 findNavController().popBackStack()
             }
         }
-        val adapter = ArrayAdapter(requireContext(), R.layout.list_item, users)
-        (userTextField.editText as? AutoCompleteTextView)?.setAdapter(adapter)
-
-        textField.editText?.doOnTextChanged { inputText, _, _, _ ->
-            val text = textField.editText?.text.toString()
-            val userId = getIdFromToString(userTextField.editText!!.text.toString())
-            if (text.isNotEmpty()) {
-                button.visibility = View.VISIBLE
-                button.text = if (post != null) "Update" else "Create"
-                button.setOnClickListener {
-                    if (post == null) {
-                        remoteDomainClient.pushChanges(
-                            Post(
-                                id = remoteDomainClient.getNewId(),
-                                userId = userId,
-                                message = text
-                            ).createDiff
-                        )
-                    } else {
-                        remoteDomainClient.pushChanges(
-                            post.copy(message = text).updateDiff
-                        )
-                    }
-                    findNavController().popBackStack()
-                }
-            } else {
-                button.visibility = View.GONE
+        val adapter = ArrayAdapter(requireContext(), R.layout.list_item, users.map { it.userName })
+        val userView = (userTextField.editText as? AutoCompleteTextView)
+        userView?.setAdapter(adapter)
+        userView?.onItemClickListener =
+            OnItemClickListener { _, _, position, _ ->
+                currentUserId = users[position].id
+                onDataChanged(post, currentUserId)
             }
+
+        textField.editText?.doOnTextChanged { _, _, _, _ ->
+            onDataChanged(post, currentUserId)
+        }
+    }
+
+    private fun onDataChanged(post: Post?, userId: String) {
+        val text = textField.editText?.text.toString()
+        if (text.isNotEmpty()) {
+            button.visibility = View.VISIBLE
+            button.text = if (post != null) "Update" else "Create"
+            button.setOnClickListener {
+                if (post == null) {
+                    remoteDomainClient.pushChanges(
+                        Post(
+                            id = remoteDomainClient.getNewId(),
+                            userId = userId,
+                            message = text
+                        ).createDiff
+                    )
+                } else {
+                    remoteDomainClient.pushChanges(
+                        post.copy(message = text).updateDiff
+                    )
+                }
+                findNavController().popBackStack()
+            }
+        } else {
+            button.visibility = View.GONE
         }
     }
 }

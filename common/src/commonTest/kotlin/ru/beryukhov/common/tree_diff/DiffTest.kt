@@ -205,15 +205,15 @@ class DiffTest {
     }
 
     @Test
-    fun complexDiffing(){
+    fun complexDiffing() {
         val diff1 = DiffImpl.get(a, a_add_user)
         val diff2 = DiffImpl.get(a, a_add_comment)
         val diff = DiffImpl.apply(diff1!!, diff2)
-        assertEquals(DiffImpl.apply(a_add_user,diff2),  DiffImpl.apply(a, diff))
+        assertEquals(DiffImpl.apply(a_add_user, diff2), DiffImpl.apply(a, diff))
     }
 
     @Test
-    fun emtptyApplyDiff(){
+    fun emtptyApplyDiff() {
         val empty = Entity()
         val diff = `a_add_user-a`
         assertEquals(diff, DiffImpl.apply(empty, diff))

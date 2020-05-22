@@ -53,9 +53,9 @@ internal object DiffImpl : Diff {
         if (diff == null) return e
         val result = DiffEntity(
             data = e.data?.toMutableMap() ?: mutableMapOf(),
-            leaf = diff.leaf ?: e.leaf,
-            creatorClientId = e.creatorClientId,
-            privacyMode = e.privacyMode
+            leaf = diff.leaf,
+            creatorClientId = diff.creatorClientId,
+            privacyMode = diff.privacyMode
         )
         if (diff.data == null) return result.entity
         diff.data.keys.forEach {

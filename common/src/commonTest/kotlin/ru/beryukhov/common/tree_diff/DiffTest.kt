@@ -114,6 +114,20 @@ class DiffTest {
         )
     )
 
+    private val a_users_null_leaf = "User" to Entity(
+        mapOf(
+            "0" to Entity(leaf = null),
+            "1" to Entity(leaf = "TestTestov1")
+        )
+    )
+
+    private val `a+a_null_leaf_diff` = Entity(
+        mapOf(
+            a_users_null_leaf,
+            a_posts
+        )
+    )
+
     private val a_posts_change = "Post" to Entity(
         mapOf(
             "2" to Entity(
@@ -154,6 +168,16 @@ class DiffTest {
                             "Message" to Entity(leaf = "Hello world0")
                         )
                     )
+                )
+            )
+        )
+    )
+
+    private val a_null_leaf_diff = Entity(
+        mapOf(
+            "User" to Entity(
+                mapOf(
+                    "0" to Entity(leaf = null)
                 )
             )
         )
@@ -217,6 +241,11 @@ class DiffTest {
         val empty = Entity()
         val diff = `a_add_user-a`
         assertEquals(diff, DiffImpl.apply(empty, diff))
+    }
+
+    @Test
+    fun testApplyRemoveLeaf() {
+        assertEquals(`a+a_null_leaf_diff`, DiffImpl.apply(a, a_null_leaf_diff))
     }
 
 }

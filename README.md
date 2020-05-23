@@ -1,4 +1,4 @@
-![CI](https://github.com/AndreySBer/RemoteDomain/workflows/CI/badge.svg)
+<!---![CI](https://github.com/AndreySBer/RemoteDomain/workflows/CI/badge.svg) Actions are failing in repository checkout-->
 [![Kotlin Version](https://img.shields.io/badge/Kotlin-1.3.61-blue.svg)](https://kotlinlang.org)
 # Remote Domain
 Remote Domain is a Framework for rapid application development built as a part of a Master Graduation Work.

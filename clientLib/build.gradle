@@ -34,7 +34,7 @@ kotlin {
             api project(':reactiveNetwork')
 
             implementation 'org.jetbrains.kotlin:kotlin-stdlib'
-            implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$coroutines_version"
+            implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
 
             implementation "io.ktor:ktor-client-core:$ktor_version"
             implementation "io.ktor:ktor-client-json:$ktor_version"

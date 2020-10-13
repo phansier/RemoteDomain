@@ -3,7 +3,7 @@ package ru.beryukhov.client_lib
 import kotlin.random.Random
 
 
-@UseExperimental(ExperimentalStdlibApi::class)
+@OptIn(ExperimentalStdlibApi::class)
 fun generatePassword(
     length: Int = 8,
     isUpperCase: Boolean = true,

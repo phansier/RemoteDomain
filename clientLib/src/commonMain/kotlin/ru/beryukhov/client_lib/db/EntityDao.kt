@@ -2,19 +2,20 @@ package ru.beryukhov.client_lib.db
 
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.runtime.coroutines.asFlow
-import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.squareup.sqldelight.runtime.coroutines.mapToOne
-import com.squareup.sqldelight.runtime.coroutines.mapToOneOrNull
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import ru.beryukhov.common.model.Entity
-import ru.beryukhov.client_lib.DbEntity
-import ru.beryukhov.client_lib.DomainQueries
+import kotlinx.coroutines.launch
 import ru.beryukhov.client_lib.QueryWrapper
 import ru.beryukhov.client_lib.log
+import ru.beryukhov.clientlib.DbEntity
+import ru.beryukhov.clientlib.DomainQueries
+import ru.beryukhov.common.model.Entity
 import kotlin.coroutines.CoroutineContext
 
 expect class EntityDao : Dao<Entity>
@@ -30,18 +31,9 @@ internal class EntityDaoImpl(
     override fun createTable() {
         CoroutineScope(dbContext).launch {
             log("EntityDao", "createDb() start")
-            domainQueries.deleteDbEntityTable()
             domainQueries.createDbEntityTable()
             domainQueries.insertDbEntity(Entity().toJson())
             log("EntityDao", "createDb() created")
-        }
-    }
-
-    override fun deleteTable() {
-        CoroutineScope(dbContext).launch {
-            log("EntityDao", "deleteDb() start")
-            domainQueries.deleteDbEntityTable()
-            log("EntityDao", "deleteDb() deleted")
         }
     }
 

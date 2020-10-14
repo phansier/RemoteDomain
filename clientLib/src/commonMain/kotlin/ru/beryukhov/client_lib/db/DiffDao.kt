@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import ru.beryukhov.client_lib.DiffQueries
-import ru.beryukhov.client_lib.EntityDiff
 import ru.beryukhov.client_lib.QueryWrapper
 import ru.beryukhov.client_lib.log
+import ru.beryukhov.clientlib.DiffQueries
+import ru.beryukhov.clientlib.EntityDiff
 import ru.beryukhov.common.model.Entity
 import kotlin.coroutines.CoroutineContext
 
@@ -31,18 +31,9 @@ internal class DiffDaoImpl(
     override fun createTable() {
         CoroutineScope(dbContext).launch {
             log("EntityDao", "createDb() start")
-            diffQueries.deleteEntityDiffTable()
             diffQueries.createEntityDiffTable()
             diffQueries.insertEntityDiff(Entity().toJson())
             log("EntityDao", "createDb() created")
-        }
-    }
-
-    override fun deleteTable() {
-        CoroutineScope(dbContext).launch {
-            log("EntityDao", "deleteDb() start")
-            diffQueries.deleteEntityDiffTable()
-            log("EntityDao", "deleteDb() deleted")
         }
     }
 

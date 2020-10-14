@@ -4,9 +4,6 @@ CREATE TABLE IF NOT EXISTS EntityDiff  (
   json TEXT
 );
 
-deleteEntityDiffTable:
-DROP TABLE IF EXISTS EntityDiff;
-
 insertEntityDiff:
 INSERT OR REPLACE INTO EntityDiff(id, json)
 VALUES (NULL,?);

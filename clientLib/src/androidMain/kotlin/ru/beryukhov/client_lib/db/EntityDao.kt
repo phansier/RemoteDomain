@@ -6,9 +6,9 @@ import com.squareup.sqldelight.android.AndroidSqliteDriver
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.newSingleThreadContext
-import ru.beryukhov.client_lib.DbEntity
-import ru.beryukhov.client_lib.EntityDiff
 import ru.beryukhov.client_lib.QueryWrapper
+import ru.beryukhov.clientlib.DbEntity
+import ru.beryukhov.clientlib.EntityDiff
 import ru.beryukhov.common.model.Entity
 
 @ExperimentalCoroutinesApi

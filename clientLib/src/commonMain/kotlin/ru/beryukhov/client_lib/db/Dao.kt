@@ -9,5 +9,4 @@ interface Dao<Entity>{
     fun getEntityJson(): String
     fun getEntityFlow(): Flow<Entity>
     fun createTable()
-    fun deleteTable()
 }

@@ -1,15 +1,16 @@
 package ru.beryukhov.remote_domain
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.user_fragment.*
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import ru.beryukhov.client_lib.RemoteDomainClient
@@ -21,7 +22,7 @@ import ru.beryukhov.remote_domain.recycler.PostItem
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
-class UserFragment : Fragment() {
+class UserFragment : Fragment(R.layout.user_fragment) {
 
     private val remoteDomainClient: RemoteDomainClient by lazy {
         (requireActivity().application as TheApplication).theInteractor.remoteDomainClient
@@ -31,19 +32,25 @@ class UserFragment : Fragment() {
 
     private lateinit var adapter: DomainListAdapter
 
+    private lateinit var user_id: TextView
+    private lateinit var userTextField: TextInputLayout
+    private lateinit var textField: TextInputLayout
+    private lateinit var button: Button
+    private lateinit var deleteButton: Button
+    private lateinit var recycler_view: RecyclerView
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.user_fragment, container, false)
-        return view
+    private fun View.findViews() {
+        user_id = findViewById(R.id.user_id)
+        userTextField = findViewById(R.id.userTextField)
+        textField = findViewById(R.id.textField)
+        button = findViewById(R.id.button)
+        deleteButton = findViewById(R.id.deleteButton)
+        recycler_view = findViewById(R.id.recycler_view)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        view.findViews()
         val user = args.user
 
         if (user != null) {

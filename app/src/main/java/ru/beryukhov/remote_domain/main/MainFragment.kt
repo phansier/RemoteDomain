@@ -7,9 +7,10 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.tabs.TabLayoutMediator.TabConfigurationStrategy
-import kotlinx.android.synthetic.main.main_fragment.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import ru.beryukhov.remote_domain.R
@@ -29,12 +30,15 @@ class MainFragment : Fragment() {
         val view = inflater.inflate(R.layout.main_fragment, container, false)
         return view
     }
+
     private val entities = arrayOf(
         ENTITY_POST, ENTITY_USER
     )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val viewPager2: ViewPager2 = view.findViewById(R.id.viewPager2)
+        val tabs: TabLayout = view.findViewById(R.id.tabs)
         viewPager2.adapter = ViewPagerFragmentStateAdapter(this, entities)
 
         TabLayoutMediator(tabs, viewPager2,
@@ -44,9 +48,11 @@ class MainFragment : Fragment() {
     }
 
 }
+
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
-class ViewPagerFragmentStateAdapter(fragment: Fragment, private val entities: Array<String>) : FragmentStateAdapter(fragment) {
+class ViewPagerFragmentStateAdapter(fragment: Fragment, private val entities: Array<String>) :
+    FragmentStateAdapter(fragment) {
 
     override fun getItemCount(): Int = entities.size
     override fun createFragment(position: Int): Fragment = ListFragment().apply {

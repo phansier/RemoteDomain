@@ -4,7 +4,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.list_fragment.*
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import moxy.MvpAppCompatFragment
@@ -31,9 +32,17 @@ class ListFragment : MvpAppCompatFragment(R.layout.list_fragment),
     private lateinit var adapter: DomainListAdapter
     private lateinit var entity: String
 
+    private lateinit var fab: FloatingActionButton
+    private lateinit var recycler_view: RecyclerView
+
+    private fun View.findViews() {
+        fab = findViewById(R.id.fab)
+        recycler_view = findViewById(R.id.recycler_view)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        view.findViews()
         arguments?.let {
             entity = it.getString(ENTITY_ARGUMENT, ENTITY_POST)
         }

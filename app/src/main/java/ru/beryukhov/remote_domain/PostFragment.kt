@@ -1,19 +1,17 @@
 package ru.beryukhov.remote_domain
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.Button
+import android.widget.TextView
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import kotlinx.android.synthetic.main.post_fragment.*
-import kotlinx.android.synthetic.main.user_fragment.button
-import kotlinx.android.synthetic.main.user_fragment.textField
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import ru.beryukhov.client_lib.RemoteDomainClient
@@ -23,7 +21,7 @@ import ru.beryukhov.remote_domain.main.users
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
-class PostFragment : Fragment() {
+class PostFragment : Fragment(R.layout.post_fragment) {
 
     private val remoteDomainClient: RemoteDomainClient by lazy {
         (requireActivity().application as TheApplication).theInteractor.remoteDomainClient
@@ -31,18 +29,23 @@ class PostFragment : Fragment() {
 
     private val args: PostFragmentArgs by navArgs()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.post_fragment, container, false)
-        return view
+    private lateinit var post_id: TextView
+    private lateinit var userTextField: TextInputLayout
+    private lateinit var textField: TextInputLayout
+    private lateinit var button: Button
+    private lateinit var deleteButton: Button
+
+    private fun View.findViews() {
+        post_id = findViewById(R.id.post_id)
+        userTextField = findViewById(R.id.userTextField)
+        textField = findViewById(R.id.textField)
+        button = findViewById(R.id.button)
+        deleteButton = findViewById(R.id.deleteButton)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        view.findViews()
         val post = args.post
         val users = remoteDomainClient.getEntity().users()!!
         var currentUserId: String = users[0].id

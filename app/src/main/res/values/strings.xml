@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Remote Domain</string>
+    <string name="title_activity_compose">Compose Remote Domain</string>
 </resources>

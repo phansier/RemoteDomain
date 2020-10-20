@@ -8,7 +8,7 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 import ru.beryukhov.client_lib.db.DiffDao
 import ru.beryukhov.client_lib.db.EntityDao
 
-@InternalAPI
+
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
 actual class RemoteDomainClient constructor(applicationContext: Application) :

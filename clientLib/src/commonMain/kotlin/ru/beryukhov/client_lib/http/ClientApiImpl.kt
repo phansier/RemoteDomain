@@ -12,7 +12,6 @@ import ru.beryukhov.common.model.Entity
 import ru.beryukhov.common.model.Result
 import ru.beryukhov.common.model.Success
 
-@InternalAPI
 class ClientApiImpl(
     private val httpClient: HttpClient,
     private val serverUrl: String
@@ -43,6 +42,7 @@ class ClientApiImpl(
         }
 
     //taken from io.ktor.client.features.auth.providers.BasicAuthProvider
+    @OptIn(InternalAPI::class)
     internal fun constructBasicAuthValue(credentials: Credentials): String {
         val authString = "${credentials.clientId}:${credentials.encodedPassword}"
         val authBuf = authString.toByteArray().encodeBase64()

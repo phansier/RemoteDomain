@@ -40,7 +40,7 @@ interface RemoteDomainClientApi {
 
 expect class RemoteDomainClient : RemoteDomainClientApi
 
-@InternalAPI
+
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 internal class RemoteDomainClientImpl(

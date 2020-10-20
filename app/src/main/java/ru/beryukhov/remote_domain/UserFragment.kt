@@ -4,20 +4,18 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import ru.beryukhov.client_lib.RemoteDomainClient
+import ru.beryukhov.common.model.Entity
+import ru.beryukhov.remote_domain.domain.Post
 import ru.beryukhov.remote_domain.domain.User
-import ru.beryukhov.remote_domain.main.posts
-import ru.beryukhov.remote_domain.main.users
-import ru.beryukhov.remote_domain.recycler.DomainListAdapter
 import ru.beryukhov.remote_domain.recycler.PostItem
 
 @ObsoleteCoroutinesApi
@@ -30,18 +28,14 @@ class UserFragment : Fragment(R.layout.user_fragment) {
 
     private val args: UserFragmentArgs by navArgs()
 
-    private lateinit var adapter: DomainListAdapter
-
     private lateinit var user_id: TextView
-    private lateinit var userTextField: TextInputLayout
     private lateinit var textField: TextInputLayout
     private lateinit var button: Button
     private lateinit var deleteButton: Button
-    private lateinit var recycler_view: RecyclerView
+    private lateinit var recycler_view: ComposeView
 
     private fun View.findViews() {
         user_id = findViewById(R.id.user_id)
-        userTextField = findViewById(R.id.userTextField)
         textField = findViewById(R.id.textField)
         button = findViewById(R.id.button)
         deleteButton = findViewById(R.id.deleteButton)
@@ -90,24 +84,31 @@ class UserFragment : Fragment(R.layout.user_fragment) {
             }
         }
 
-        adapter = setupRecycler()
+        setupRecycler()
     }
 
-    private fun setupRecycler(): DomainListAdapter {
-        val adapter = DomainListAdapter()
-        recycler_view.layoutManager = LinearLayoutManager(requireContext())
-        recycler_view.adapter = adapter
-
+    private fun setupRecycler() {
         val user = args.user
         if (user != null) {
             val entity = remoteDomainClient.getEntity()
             val users = entity.users()
-            adapter.add(entity.posts()
+
+            val items = entity.posts()
                 ?.filter { post -> post.userId == user.id }
                 ?.map { item -> PostItem(item, users?.find { it.id == item.userId }) }
-            )
+            if (items!=null) {
+                recycler_view.setContent { PostList(items) }
+            }
         }
-
-        return adapter
     }
+
+}
+
+
+fun Entity.users(): List<User>? {
+    return this.data?.get(User.USER)?.data?.entries?.map { it -> User(it.key, it.value!!) }
+}
+
+fun Entity.posts(): List<Post>? {
+    return this.data?.get(Post.POST)?.data?.entries?.map { it -> Post(it.key, it.value!!) }
 }

@@ -7,7 +7,6 @@ import ru.beryukhov.common.model.Entity
 
 expect fun createHttpClient(logRequests: Boolean): HttpClient
 
-@InternalAPI
 class HttpClientRepositoryImpl(private val serverUrl: String, logRequests: Boolean) :
     HttpClientRepository {
 

@@ -2,17 +2,18 @@ package ru.beryukhov.remote_domain.main
 
 import android.app.Application
 import android.util.Log
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import moxy.MvpPresenter
 import moxy.presenterScope
 import ru.beryukhov.client_lib.RemoteDomainClient
 import ru.beryukhov.common.model.Entity
 import ru.beryukhov.remote_domain.TheApplication
 
-@ObsoleteCoroutinesApi
-@ExperimentalCoroutinesApi
 class MainPresenter(private val applicationContext: Application) : MvpPresenter<MainView>() {
 
     private val remoteDomainClient: RemoteDomainClient by lazy {

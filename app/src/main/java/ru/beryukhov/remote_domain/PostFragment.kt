@@ -12,14 +12,9 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.textfield.TextInputLayout
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import ru.beryukhov.client_lib.RemoteDomainClient
 import ru.beryukhov.remote_domain.domain.Post
 
-
-@ObsoleteCoroutinesApi
-@ExperimentalCoroutinesApi
 class PostFragment : Fragment(R.layout.post_fragment) {
 
     private val remoteDomainClient: RemoteDomainClient by lazy {

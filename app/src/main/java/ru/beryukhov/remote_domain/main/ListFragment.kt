@@ -6,8 +6,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
 import ru.beryukhov.common.model.Entity
@@ -20,8 +18,6 @@ import ru.beryukhov.remote_domain.recycler.DomainListAdapter
 import ru.beryukhov.remote_domain.recycler.PostItem
 import ru.beryukhov.remote_domain.recycler.UserItem
 
-@ObsoleteCoroutinesApi
-@ExperimentalCoroutinesApi
 class ListFragment : MvpAppCompatFragment(R.layout.list_fragment),
     MainView {
 

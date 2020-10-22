@@ -4,8 +4,6 @@ import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToOne
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flowOn
@@ -20,8 +18,6 @@ import kotlin.coroutines.CoroutineContext
 
 expect class EntityDao : Dao<Entity>
 
-@ObsoleteCoroutinesApi
-@ExperimentalCoroutinesApi
 internal class EntityDaoImpl(
     sqlDriver: SqlDriver,
     private val dbContext: CoroutineContext

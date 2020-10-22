@@ -11,16 +11,12 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.tabs.TabLayoutMediator.TabConfigurationStrategy
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import ru.beryukhov.remote_domain.R
 
 const val ENTITY_ARGUMENT = "entity"
 const val ENTITY_USER = "Users"
 const val ENTITY_POST = "Posts"
 
-@ObsoleteCoroutinesApi
-@ExperimentalCoroutinesApi
 class MainFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,8 +45,6 @@ class MainFragment : Fragment() {
 
 }
 
-@ObsoleteCoroutinesApi
-@ExperimentalCoroutinesApi
 class ViewPagerFragmentStateAdapter(fragment: Fragment, private val entities: Array<String>) :
     FragmentStateAdapter(fragment) {
 

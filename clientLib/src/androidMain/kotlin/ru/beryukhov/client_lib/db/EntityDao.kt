@@ -3,7 +3,6 @@ package ru.beryukhov.client_lib.db
 import android.content.Context
 import com.google.gson.Gson
 import com.squareup.sqldelight.android.AndroidSqliteDriver
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.newSingleThreadContext
 import ru.beryukhov.client_lib.QueryWrapper
@@ -11,26 +10,22 @@ import ru.beryukhov.clientlib.DbEntity
 import ru.beryukhov.clientlib.EntityDiff
 import ru.beryukhov.common.model.Entity
 
-@ExperimentalCoroutinesApi
-@ObsoleteCoroutinesApi
 actual class EntityDao constructor(context: Context) : Dao<Entity> by EntityDaoImpl(
     sqlDriver = AndroidSqliteDriver(
         QueryWrapper.Schema,
         context,
         "test.db"
     ),
-    dbContext = newSingleThreadContext("DB")
+    dbContext = @OptIn(ObsoleteCoroutinesApi::class) newSingleThreadContext("DB")
 )
 
-@ExperimentalCoroutinesApi
-@ObsoleteCoroutinesApi
 actual class DiffDao constructor(context: Context): Dao<Entity> by DiffDaoImpl(
     sqlDriver = AndroidSqliteDriver(
         QueryWrapper.Schema,
         context,
         "test.db"
     ),
-    dbContext = newSingleThreadContext("DB")
+    dbContext = @OptIn(ObsoleteCoroutinesApi::class) newSingleThreadContext("DB")
 )
 
 private val gson by lazy { Gson() }

@@ -17,10 +17,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.navArgs
 import androidx.ui.tooling.preview.Preview
+import ru.beryukhov.client_lib.RemoteDomainClient
 
 
 class PostFragmentCompose : Fragment() {
+    private val remoteDomainClient: RemoteDomainClient by lazy {
+        (requireActivity().application as TheApplication).theInteractor.remoteDomainClient
+    }
+
+    private val args: PostFragmentArgs by navArgs()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

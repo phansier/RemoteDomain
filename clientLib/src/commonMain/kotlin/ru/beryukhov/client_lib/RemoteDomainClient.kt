@@ -1,12 +1,14 @@
 package ru.beryukhov.client_lib
 
 import RN
-import io.ktor.util.InternalAPI
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import ru.beryukhov.client_lib.db.DiffDao
 import ru.beryukhov.client_lib.db.EntityDao
 import ru.beryukhov.client_lib.http.ClientApi
@@ -41,8 +43,6 @@ interface RemoteDomainClientApi {
 expect class RemoteDomainClient : RemoteDomainClientApi
 
 
-@ObsoleteCoroutinesApi
-@ExperimentalCoroutinesApi
 internal class RemoteDomainClientImpl(
     private val entityDao: EntityDao,
     private val diffDao: DiffDao,
@@ -75,11 +75,13 @@ internal class RemoteDomainClientImpl(
         if (isInit) {
             return
         }
+        @OptIn(ExperimentalCoroutinesApi::class)
         val broadcastChannel = BroadcastChannel<Any>(Channel.CONFLATED)
         val httpClientRepository = HttpClientRepositoryImpl(serverUrl, logRequests)
         clientApi = httpClientRepository.clientApi
 
         GlobalScope.launch {
+            @OptIn(ObsoleteCoroutinesApi::class)
             broadcastChannel.consumeEach {
                 log("RemoteDomainClientImpl", "event got")
                 try {
@@ -97,6 +99,7 @@ internal class RemoteDomainClientImpl(
                 }
             }
         }
+        @OptIn(ObsoleteCoroutinesApi::class)
         broadcastChannel.offer(Unit)
         reConnectWebSocket(socketUrl, broadcastChannel)
         reactiveNetwork.observeNetworkConnectivity().onEach {

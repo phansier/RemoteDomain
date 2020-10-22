@@ -16,7 +16,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import ru.beryukhov.client_lib.RemoteDomainClient
 import ru.beryukhov.remote_domain.domain.Post
-import ru.beryukhov.remote_domain.main.users
 
 
 @ObsoleteCoroutinesApi

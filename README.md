@@ -20,6 +20,7 @@ Due to multiplatform code reuse it can be easily adopted for use with iOS target
   - [FlowReactiveNetwork](https://github.com/AndreySBer/FlowReactiveNetwork)
   - Moxy
   - AndroidX Navigation
+  - Jetpack Compose
 
 # How to use
 ### Integration

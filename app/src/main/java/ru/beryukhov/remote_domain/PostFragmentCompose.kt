@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.ConstraintLayout
 import androidx.compose.foundation.layout.Dimension
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonConstants.defaultButtonColors
 import androidx.compose.material.ContainerAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TextField
@@ -83,8 +84,10 @@ fun PostPage(post_id: String = "0") {
             Text("Save")
         }
         Button(onClick = {},
-            backgroundColor = Color.Red,
-            contentColor = Color.White,
+            colors = defaultButtonColors(
+                backgroundColor = Color.Red,
+                contentColor = Color.White
+            ),
             modifier = Modifier.constrainAs(deleteButtonRef) {
                 top.linkTo(textFiledRef.bottom, margin = 16.dp)
                 start.linkTo(buttonRef.end, margin = 8.dp)

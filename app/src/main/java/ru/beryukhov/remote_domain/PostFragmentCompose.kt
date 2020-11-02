@@ -22,11 +22,15 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.ui.tooling.preview.Preview
-import ru.beryukhov.client_lib.RemoteDomainClient
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import ru.beryukhov.client_lib.RemoteDomainClientApi
+import ru.beryukhov.common.model.Entity
+import ru.beryukhov.remote_domain.domain.Post
 
 
 class PostFragmentCompose : Fragment() {
-    private val remoteDomainClient: RemoteDomainClient by lazy {
+    private val remoteDomainClient: RemoteDomainClientApi by lazy {
         (requireActivity().application as TheApplication).theInteractor.remoteDomainClient
     }
 
@@ -54,6 +58,8 @@ class PostFragmentCompose : Fragment() {
                 findNavController().popBackStack()
             }
             PostPageData(
+                post = post,
+                userId = post.userId,
                 postIdText = post.id,
                 userText = userString ?: "",
                 messageText = post.message,
@@ -65,22 +71,39 @@ class PostFragmentCompose : Fragment() {
             requireContext(),
             attrs = null,
             defStyleAttr = 0
-        ).apply { setContent { PostPage(postPageData) } }
+        ).apply {
+            setContent {
+                PostPage(
+                    postPageData = postPageData,
+                    remoteDomainClient = remoteDomainClient,
+                    onBack = findNavController()::popBackStack
+                )
+            }
+        }
     }
+
 }
 
 data class PostPageData(
+    val post: Post? = null,
+    val userId: String = "",
     val postIdText: String = "",
     val userText: String = "",
     val messageText: String = "",
     val deleteButtonOnClick: () -> Unit = {}
 )
 
+
 @Composable
-fun PostPage(postPageData: PostPageData = PostPageData()) {
+fun PostPage(
+    postPageData: PostPageData = PostPageData(),
+    remoteDomainClient: RemoteDomainClientApi = remoteDomainClientMock,
+    onBack: () -> Unit = {}
+) {
 
     ConstraintLayout(modifier = Modifier.padding(24.dp)) {
         val (postIdRef, userTextFieldRef, textFiledRef, buttonRef, deleteButtonRef) = createRefs()
+
         Text(text = postPageData.postIdText, modifier = Modifier.constrainAs(postIdRef) {
             top.linkTo(parent.top, margin = 0.dp)
             start.linkTo(parent.start, margin = 0.dp)
@@ -101,7 +124,9 @@ fun PostPage(postPageData: PostPageData = PostPageData()) {
         var message: String by remember { mutableStateOf(postPageData.messageText) }
         TextField(
             value = message,
-            onValueChange = { message = it },
+            onValueChange = {
+                message = it
+            },
             label = { Text("Message") },
             backgroundColor = MaterialTheme.colors.background.copy(alpha = ContainerAlpha),
             modifier = Modifier.constrainAs(textFiledRef) {
@@ -111,35 +136,69 @@ fun PostPage(postPageData: PostPageData = PostPageData()) {
                 width = Dimension.fillToConstraints
             }
         )
-        var saveButtonVisible: Boolean by remember { mutableStateOf(false) }
-        if (saveButtonVisible) {
-            Button(onClick = {},
+        if (message.isNotEmpty()) {
+            Button(onClick = {
+                if (
+                    postPageData.post == null) {
+                    remoteDomainClient.pushChanges(
+                        Post(
+                            id = remoteDomainClient.getNewId(),
+                            userId = postPageData.userId,
+                            message = message
+                        ).createDiff
+                    )
+                } else {
+                    remoteDomainClient.pushChanges(
+                        postPageData.post.copy(message = message).updateDiff
+                    )
+                }
+                onBack()
+            },
                 modifier = Modifier.constrainAs(buttonRef) {
                     top.linkTo(textFiledRef.bottom, margin = 16.dp)
                     start.linkTo(parent.start, margin = 8.dp)
                     end.linkTo(deleteButtonRef.start, margin = 8.dp)
                 }) {
-                Text("Save")
+                Text(if (postPageData.post != null) "Update" else "Create")
             }
         }
-        var deleteButtonVisible: Boolean by remember { mutableStateOf(true) }
-        if (deleteButtonVisible) {
-            Button(onClick = postPageData.deleteButtonOnClick,
-                colors = defaultButtonColors(
-                    backgroundColor = Color.Red,
-                    contentColor = Color.White
-                ),
-                modifier = Modifier.constrainAs(deleteButtonRef) {
-                    top.linkTo(textFiledRef.bottom, margin = 16.dp)
-                    start.linkTo(buttonRef.end, margin = 8.dp)
-                    end.linkTo(parent.end, margin = 8.dp)
-                }) {
-                Text("Delete")
+        DeleteButton(
+            onClick = postPageData.deleteButtonOnClick,
+            modifier = Modifier.constrainAs(deleteButtonRef) {
+                top.linkTo(textFiledRef.bottom, margin = 16.dp)
+                start.linkTo(buttonRef.end, margin = 8.dp)
+                end.linkTo(parent.end, margin = 8.dp)
             }
-        }
+        )
+    }
+}
+
+@Composable
+fun DeleteButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Button(
+        onClick = onClick,
+        colors = defaultButtonColors(
+            backgroundColor = Color.Red,
+            contentColor = Color.White
+        ), modifier = modifier
+    ) {
+        Text("Delete")
     }
 }
 
 @Preview
 @Composable
 fun PostPagePreview() = PostPage()
+
+val remoteDomainClientMock = object : RemoteDomainClientApi {
+    override fun init(serverUrl: String, socketUrl: String, logRequests: Boolean) = Unit
+
+    override fun getEntityFlow(): Flow<Entity> = flow { }
+
+    override fun getEntity(): Entity = Entity()
+
+    override fun pushChanges(diff: Entity) = Unit
+
+    override fun getNewId(): String = ""
+
+}

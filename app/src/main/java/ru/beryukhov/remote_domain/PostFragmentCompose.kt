@@ -22,10 +22,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.ui.tooling.preview.Preview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import ru.beryukhov.client_lib.RemoteDomainClientApi
-import ru.beryukhov.common.model.Entity
 import ru.beryukhov.remote_domain.domain.Post
 
 
@@ -45,6 +42,14 @@ class PostFragmentCompose : Fragment() {
         val users = remoteDomainClient.getEntity().users()!!
         //todo add users list to edittext for autocomplete
 
+        val createPost = { message: String, userId: String -> remoteDomainClient.pushChanges(
+            Post(
+                id = remoteDomainClient.getNewId(),
+                userId = userId,
+                message = message
+            ).createDiff
+        )}
+
         val postPageData = if (post != null) {
             val user = users.find { it.id == post.userId }
             val userString = if (BuildConfig.SHOW_ENTITY_ID)
@@ -57,15 +62,22 @@ class PostFragmentCompose : Fragment() {
                 )
                 findNavController().popBackStack()
             }
+
+            val updateMessage = { message: String ->
+                remoteDomainClient.pushChanges(
+                    post.copy(message = message).updateDiff
+                )
+            }
+
             PostPageData(
-                post = post,
-                userId = post.userId,
+                isNewPost = false,
                 postIdText = post.id,
                 userText = userString ?: "",
                 messageText = post.message,
-                deleteButtonOnClick = deleteButtonOnClickListener
+                deleteButtonOnClick = deleteButtonOnClickListener,
+                updateMessage = updateMessage
             )
-        } else PostPageData()
+        } else PostPageData(isNewPost = true, createPost = createPost)
 
         return ComposeView(
             requireContext(),
@@ -75,7 +87,6 @@ class PostFragmentCompose : Fragment() {
             setContent {
                 PostPage(
                     postPageData = postPageData,
-                    remoteDomainClient = remoteDomainClient,
                     onBack = findNavController()::popBackStack
                 )
             }
@@ -85,19 +96,19 @@ class PostFragmentCompose : Fragment() {
 }
 
 data class PostPageData(
-    val post: Post? = null,
-    val userId: String = "",
+    val isNewPost: Boolean = false,
     val postIdText: String = "",
     val userText: String = "",
     val messageText: String = "",
-    val deleteButtonOnClick: () -> Unit = {}
+    val deleteButtonOnClick: () -> Unit = {},
+    val createPost: (message: String, userId: String) -> Unit = { _: String, _: String -> },
+    val updateMessage: (message: String) -> Unit = {}
 )
 
 
 @Composable
 fun PostPage(
     postPageData: PostPageData = PostPageData(),
-    remoteDomainClient: RemoteDomainClientApi = remoteDomainClientMock,
     onBack: () -> Unit = {}
 ) {
 
@@ -138,19 +149,10 @@ fun PostPage(
         )
         if (message.isNotEmpty()) {
             Button(onClick = {
-                if (
-                    postPageData.post == null) {
-                    remoteDomainClient.pushChanges(
-                        Post(
-                            id = remoteDomainClient.getNewId(),
-                            userId = postPageData.userId,
-                            message = message
-                        ).createDiff
-                    )
+                if (postPageData.isNewPost) {
+                    postPageData.createPost(message, ""/*todo get current userId*/)
                 } else {
-                    remoteDomainClient.pushChanges(
-                        postPageData.post.copy(message = message).updateDiff
-                    )
+                    postPageData.updateMessage(message)
                 }
                 onBack()
             },
@@ -159,7 +161,7 @@ fun PostPage(
                     start.linkTo(parent.start, margin = 8.dp)
                     end.linkTo(deleteButtonRef.start, margin = 8.dp)
                 }) {
-                Text(if (postPageData.post != null) "Update" else "Create")
+                Text(if (postPageData.isNewPost) "Create" else "Update")
             }
         }
         DeleteButton(
@@ -189,16 +191,3 @@ fun DeleteButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
 @Preview
 @Composable
 fun PostPagePreview() = PostPage()
-
-val remoteDomainClientMock = object : RemoteDomainClientApi {
-    override fun init(serverUrl: String, socketUrl: String, logRequests: Boolean) = Unit
-
-    override fun getEntityFlow(): Flow<Entity> = flow { }
-
-    override fun getEntity(): Entity = Entity()
-
-    override fun pushChanges(diff: Entity) = Unit
-
-    override fun getNewId(): String = ""
-
-}

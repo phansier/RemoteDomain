@@ -5,5 +5,5 @@ expect class RN {
 }
 
 data class RNConnectivity(
-val available: Boolean
+    val available: Boolean
 )

@@ -5,6 +5,8 @@ Remote Domain is a Framework for rapid application development built as a part o
 It provides multiplatform (currently Android) client library and Ktor server for real-time synchronization of data state. It replaces Repository, Database and Network layers in client.
 Due to multiplatform code reuse it can be easily adopted for use with iOS target.
 
+[There is an article about multiplatform conflict-free replicated data types that this work was supposed to be like](https://avwie.github.io/creating-multiplatform-crdts)
+
 # Utilized technologies
 - Kotlin Multiplatform
 - Server
